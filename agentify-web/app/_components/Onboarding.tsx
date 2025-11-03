@@ -5,6 +5,7 @@ import { Card, Typography } from 'antd';
 import { useState, type FC } from 'react';
 import ChooseMethod from './ChooseMethod';
 import ChooseTone from './ChooseTone';
+import TestAssistant from './TestAssistant';
 
 const { Title, Paragraph } = Typography;
 
@@ -17,6 +18,15 @@ const Onboarding: FC = () => {
   const handleMethodSelect = (selectedMethod: Method) => {
     setMethod(selectedMethod);
     setStep('tone');
+  };
+
+  const handleComplete = () => {
+    // const finalTone =
+    //   customTone ||
+    //   TONE_OPTIONS.find((t) => t.id === selectedTone)?.description ||
+    //   '';
+    // onComplete({ method: method || "tone", tone: finalTone });
+    // toast.success("Setup complete! Welcome to your RM Co-Pilot.");
   };
 
   return (
@@ -44,6 +54,10 @@ const Onboarding: FC = () => {
             setCustomTone={setCustomTone}
             setStep={setStep}
           />
+        )}
+
+        {step === 'test' && (
+          <TestAssistant setStep={setStep} handleComplete={handleComplete} />
         )}
       </Card>
     </div>

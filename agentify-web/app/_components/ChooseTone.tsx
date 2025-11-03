@@ -1,5 +1,6 @@
 'use client';
 
+import { TONE_OPTIONS } from '@/constants';
 import { cn } from '@/lib/utils';
 import { Method, Step } from '@/types';
 import { Button, Card, Input, Typography } from 'antd';
@@ -8,24 +9,6 @@ import { LuCircleCheck } from 'react-icons/lu';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
-
-const TONE_OPTIONS = [
-  {
-    id: 'formal',
-    label: 'Formal & Professional',
-    description: 'Structured, respectful communication',
-  },
-  {
-    id: 'friendly',
-    label: 'Friendly & Warm',
-    description: 'Approachable and personable',
-  },
-  {
-    id: 'balanced',
-    label: 'Balanced',
-    description: 'Professional yet personable',
-  },
-];
 
 interface Props {
   method: Method | null;
