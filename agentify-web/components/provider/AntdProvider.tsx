@@ -1,5 +1,6 @@
 'use client';
 
+import { StyleProvider } from '@ant-design/cssinjs';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import '@ant-design/v5-patch-for-react-19';
 import { App, ConfigProvider, ThemeConfig } from 'antd';
@@ -23,9 +24,11 @@ interface Props {
 const AntdProvider = ({ children }: Props) => {
   return (
     <AntdRegistry>
-      <ConfigProvider theme={theme}>
-        <App>{children}</App>
-      </ConfigProvider>
+      <StyleProvider layer>
+        <ConfigProvider theme={theme}>
+          <App>{children}</App>
+        </ConfigProvider>
+      </StyleProvider>
     </AntdRegistry>
   );
 };
