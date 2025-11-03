@@ -7,6 +7,6 @@
 @theme {
   --color-primary: #1167ff;
 
-  --color-background: hsl(210 25% 98%);
-  --color-foreground: hsl(220 70% 12%);
+  --color-background: #f9fafb;
+  --color-foreground: #091734;
 }

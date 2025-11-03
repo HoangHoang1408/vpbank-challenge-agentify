@@ -24,7 +24,7 @@ const ChooseMethod: FC<Props> = ({ handleMethodSelect }) => {
           onClick={() => handleMethodSelect('email')}
         >
           <div className="flex gap-4">
-            <LuMail size={32} />
+            <LuMail className="w-8 h-8" />
             <div>
               <Title level={4} className="mb-1!">
                 Connect Email
@@ -41,7 +41,7 @@ const ChooseMethod: FC<Props> = ({ handleMethodSelect }) => {
           onClick={() => handleMethodSelect('tone')}
         >
           <div className="flex gap-4">
-            <LuMessageSquare size={32} className="text-primary" />
+            <LuMessageSquare className="w-8 h-8 text-primary" />
             <div>
               <Title level={4} className="mb-1!">
                 Choose Communication Tone
