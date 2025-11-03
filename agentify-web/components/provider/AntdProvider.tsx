@@ -9,7 +9,6 @@ import type { ReactNode } from 'react';
 const theme: ThemeConfig = {
   token: {
     fontSize: 16,
-    fontFamily: 'var(--font-montserrat)',
 
     colorBorder: '#e4e4e7',
     colorBorderBg: '#e4e4e7',
