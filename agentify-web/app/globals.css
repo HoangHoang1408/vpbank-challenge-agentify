@@ -3,3 +3,10 @@
 @import url('antd/dist/reset.css') layer(reset);
 
 @import 'tailwindcss';
+
+@theme {
+  --color-primary: #1167ff;
+
+  --color-background: hsl(210 25% 98%);
+  --color-foreground: hsl(220 70% 12%);
+}

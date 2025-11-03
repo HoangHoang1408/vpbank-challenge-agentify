@@ -17,7 +17,11 @@ const RootLayout = ({ children }: Props) => {
     <html lang="en">
       <body className="antialiased">
         <ReactQueryProvider>
-          <AntdProvider>{children}</AntdProvider>
+          <AntdProvider>
+            <div className="bg-linear-to-br from-background via-background to-primary/5">
+              {children}
+            </div>
+          </AntdProvider>
         </ReactQueryProvider>
       </body>
     </html>

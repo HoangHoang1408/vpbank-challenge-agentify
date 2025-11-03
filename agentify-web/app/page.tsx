@@ -1,13 +1,10 @@
 'use client';
 
 import type { FC } from 'react';
+import { Onboarding } from './_components';
 
 const Home: FC = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold">AI Agentify</h1>
-    </div>
-  );
+  return <Onboarding />;
 };
 
 export default Home;
