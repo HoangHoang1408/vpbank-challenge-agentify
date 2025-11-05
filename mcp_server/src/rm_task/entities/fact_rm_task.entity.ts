@@ -12,9 +12,7 @@ export enum TaskType {
 }
 
 export enum TaskStatus {
-    PENDING = "PENDING",
     COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED",
     IN_PROGRESS = "IN_PROGRESS"
 }
 

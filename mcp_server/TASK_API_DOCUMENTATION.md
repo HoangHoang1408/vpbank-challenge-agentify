@@ -22,14 +22,12 @@ This document describes the CRUD operations available for managing RM (Relations
 ### 2. Update Task Constraints
 - Same constraints as create when updating `rmId` or `customerId`
 - Status transitions must be valid (see Status Transitions section)
-- Due date cannot be in the past for active tasks (PENDING/IN_PROGRESS)
+- Due date cannot be in the past for active tasks (IN_PROGRESS)
 
 ### 3. Status Transitions
 Valid status transitions:
-- **PENDING** → IN_PROGRESS, CANCELLED
-- **IN_PROGRESS** → COMPLETED, CANCELLED, PENDING
+- **IN_PROGRESS** → COMPLETED
 - **COMPLETED** → (no transitions allowed)
-- **CANCELLED** → (no transitions allowed)
 
 ## API Endpoints
 
@@ -45,7 +43,7 @@ Creates a new task with validation.
   "rmId": 1,
   "customerId": 1,
   "taskType": "CALL",
-  "status": "PENDING",
+  "status": "IN_PROGRESS",
   "taskDetails": "Follow up with customer about investment portfolio",
   "dueDate": "2024-12-31"
 }
@@ -59,10 +57,8 @@ Creates a new task with validation.
 - `SEND_INFO_PACKAGE`
 
 **Task Statuses:**
-- `PENDING`
 - `IN_PROGRESS`
 - `COMPLETED`
-- `CANCELLED`
 
 **Response:** `200 OK`
 ```json
@@ -72,7 +68,7 @@ Creates a new task with validation.
   "rmId": 1,
   "customerId": 1,
   "taskType": "CALL",
-  "status": "PENDING",
+  "status": "IN_PROGRESS",
   "taskDetails": "Follow up with customer about investment portfolio",
   "dueDate": "2024-12-31",
   "createdAt": "2024-11-04T10:00:00.000Z",
@@ -103,8 +99,8 @@ Retrieves all tasks with optional filtering.
 ```
 GET /tasks
 GET /tasks?rmId=1
-GET /tasks?status=PENDING&taskType=CALL
-GET /tasks?customerId=5&status=IN_PROGRESS
+GET /tasks?status=IN_PROGRESS&taskType=CALL
+GET /tasks?customerId=5&status=COMPLETED
 ```
 
 **Response:** `200 OK`
@@ -188,18 +184,18 @@ PUT /tasks/1
 ### 6. Soft Delete Task
 **DELETE** `/tasks/:id/soft`
 
-Marks a task as CANCELLED (soft delete).
+Marks a task as COMPLETED (soft delete).
 
 **Example:**
 ```
 DELETE /tasks/1/soft
 ```
 
-**Response:** `200 OK` (task with status=CANCELLED)
+**Response:** `200 OK` (task with status=COMPLETED)
 
 **Error Cases:**
 - `404 Not Found` - Task not found
-- `400 Bad Request` - Task already cancelled
+- `400 Bad Request` - Task already completed
 
 ---
 
@@ -262,7 +258,7 @@ GET /tasks/customer/5
 ### 10. Get Overdue Tasks
 **GET** `/tasks/overdue/all`
 
-Retrieves all overdue tasks (due date in the past, status PENDING or IN_PROGRESS).
+Retrieves all overdue tasks (due date in the past, status IN_PROGRESS).
 
 **Example:**
 ```
@@ -276,7 +272,7 @@ GET /tasks/overdue/all
     "id": 1,
     "taskId": "TASK-001",
     "dueDate": "2024-10-15",
-    "status": "PENDING",
+    "status": "IN_PROGRESS",
     ...
   }
 ]
@@ -298,10 +294,8 @@ GET /tasks/stats/rm/1
 ```json
 {
   "total": 25,
-  "pending": 8,
-  "inProgress": 5,
+  "inProgress": 15,
   "completed": 10,
-  "cancelled": 2,
   "overdue": 3
 }
 ```
@@ -321,7 +315,7 @@ The `FactRmTaskService` provides the following methods:
 - `findOne(id)` - Find task by database ID
 - `findByTaskId(taskId)` - Find task by business key
 - `update(id, updateTaskDto)` - Update a task
-- `softDelete(id)` - Mark task as CANCELLED
+- `softDelete(id)` - Mark task as COMPLETED
 - `remove(id)` - Permanently delete task
 
 ### Additional Query Methods
@@ -344,24 +338,24 @@ curl -X POST http://localhost:3000/tasks \
     "rmId": 1,
     "customerId": 1,
     "taskType": "CALL",
-    "status": "PENDING",
+    "status": "IN_PROGRESS",
     "taskDetails": "Follow up call",
     "dueDate": "2024-12-31"
   }'
 ```
 
-### Example 2: Update task status to IN_PROGRESS
+### Example 2: Update task status to COMPLETED
 ```bash
 curl -X PUT http://localhost:3000/tasks/1 \
   -H "Content-Type: application/json" \
   -d '{
-    "status": "IN_PROGRESS"
+    "status": "COMPLETED"
   }'
 ```
 
-### Example 3: Get all pending tasks for RM #1
+### Example 3: Get all in-progress tasks for RM #1
 ```bash
-curl http://localhost:3000/tasks?rmId=1&status=PENDING
+curl http://localhost:3000/tasks?rmId=1&status=IN_PROGRESS
 ```
 
 ### Example 4: Get overdue tasks

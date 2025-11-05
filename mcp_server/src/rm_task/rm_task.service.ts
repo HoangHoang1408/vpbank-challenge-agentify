@@ -209,8 +209,8 @@ export class FactRmTaskService {
         }
 
         if (updateTaskDto.dueDate) {
-            // Only validate future date for non-completed/cancelled tasks
-            if (task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED) {
+            // Only validate future date for non-completed tasks
+            if (task.status !== TaskStatus.COMPLETED) {
                 const dueDate = new Date(updateTaskDto.dueDate);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -230,10 +230,8 @@ export class FactRmTaskService {
      */
     private validateStatusTransition(currentStatus: TaskStatus, newStatus: TaskStatus): void {
         const validTransitions: Record<TaskStatus, TaskStatus[]> = {
-            [TaskStatus.PENDING]: [TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED],
-            [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.PENDING],
+            [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED],
             [TaskStatus.COMPLETED]: [], // Cannot transition from completed
-            [TaskStatus.CANCELLED]: [], // Cannot transition from cancelled
         };
 
         if (!validTransitions[currentStatus].includes(newStatus)) {
@@ -244,16 +242,16 @@ export class FactRmTaskService {
     }
 
     /**
-     * Delete a task (soft delete by changing status to CANCELLED)
+     * Delete a task (soft delete by changing status to COMPLETED)
      */
     async softDelete(id: number): Promise<FactRmTask> {
         const task = await this.findOne(id);
 
-        if (task.status === TaskStatus.CANCELLED) {
-            throw new BadRequestException('Task is already cancelled');
+        if (task.status === TaskStatus.COMPLETED) {
+            throw new BadRequestException('Task is already completed');
         }
 
-        task.status = TaskStatus.CANCELLED;
+        task.status = TaskStatus.COMPLETED;
         return await this.taskRepository.save(task);
     }
 
@@ -311,8 +309,8 @@ export class FactRmTaskService {
             .leftJoinAndSelect('task.relationshipManager', 'rm')
             .leftJoinAndSelect('task.customer', 'customer')
             .where('task.dueDate < :today', { today })
-            .andWhere('task.status IN (:...statuses)', {
-                statuses: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS]
+            .andWhere('task.status = :status', {
+                status: TaskStatus.IN_PROGRESS
             })
             .orderBy('task.dueDate', 'ASC')
             .getMany();
@@ -323,10 +321,8 @@ export class FactRmTaskService {
      */
     async getTaskStatsByRm(rmId: number): Promise<{
         total: number;
-        pending: number;
         inProgress: number;
         completed: number;
-        cancelled: number;
         overdue: number;
     }> {
         const rm = await this.rmRepository.findOne({ where: { id: rmId } });
@@ -343,31 +339,23 @@ export class FactRmTaskService {
 
         const stats = {
             total,
-            pending: 0,
             inProgress: 0,
             completed: 0,
-            cancelled: 0,
             overdue: 0,
         };
 
         for (const task of tasks) {
             switch (task.status) {
-                case TaskStatus.PENDING:
-                    stats.pending++;
-                    break;
                 case TaskStatus.IN_PROGRESS:
                     stats.inProgress++;
                     break;
                 case TaskStatus.COMPLETED:
                     stats.completed++;
                     break;
-                case TaskStatus.CANCELLED:
-                    stats.cancelled++;
-                    break;
             }
 
             if (
-                (task.status === TaskStatus.PENDING || task.status === TaskStatus.IN_PROGRESS) &&
+                task.status === TaskStatus.IN_PROGRESS &&
                 new Date(task.dueDate) < today
             ) {
                 stats.overdue++;

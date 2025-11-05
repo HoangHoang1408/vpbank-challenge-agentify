@@ -40,7 +40,7 @@ export class TaskController {
     @ApiOperation({ summary: 'Get all tasks with optional filters' })
     @ApiQuery({ name: 'rmId', required: false, type: Number, description: 'Filter by RM ID' })
     @ApiQuery({ name: 'customerId', required: false, type: Number, description: 'Filter by Customer ID' })
-    @ApiQuery({ name: 'status', required: false, enum: ['PENDING', 'COMPLETED', 'CANCELLED', 'IN_PROGRESS'], description: 'Filter by status' })
+    @ApiQuery({ name: 'status', required: false, enum: ['IN_PROGRESS', 'COMPLETED'], description: 'Filter by status' })
     @ApiQuery({ name: 'taskType', required: false, enum: ['CALL', 'EMAIL', 'MEETING', 'FOLLOW_UP', 'SEND_INFO_PACKAGE'], description: 'Filter by task type' })
     @ApiResponse({ status: 200, description: 'List of tasks retrieved successfully' })
     async getAllTasks(@Query() filterTaskDto: FilterTaskDto) {
@@ -111,7 +111,7 @@ export class TaskController {
     }
 
     @Delete(':id/soft')
-    @ApiOperation({ summary: 'Soft delete a task (mark as CANCELLED)' })
+    @ApiOperation({ summary: 'Soft delete a task (mark as COMPLETED)' })
     @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
     @ApiResponse({ status: 200, description: 'Task soft deleted successfully' })
     @ApiResponse({ status: 404, description: 'Task not found' })

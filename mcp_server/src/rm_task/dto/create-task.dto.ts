@@ -44,7 +44,7 @@ export class CreateTaskDto {
     @ApiProperty({
         description: 'Status of the task',
         enum: TaskStatus,
-        example: TaskStatus.PENDING,
+        example: TaskStatus.IN_PROGRESS,
     })
     @IsEnum(TaskStatus)
     @IsNotEmpty()

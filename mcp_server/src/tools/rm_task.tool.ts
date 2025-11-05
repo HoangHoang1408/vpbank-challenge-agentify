@@ -19,21 +19,6 @@ export class RmTaskTool {
         private readonly customerRepository: Repository<Customer>,
     ) { }
 
-    // @Tool({
-    //     name: "rm_task",
-    //     description: "Tool to get Relationship Manager task by task ID",
-    //     parameters: z.object({
-    //         taskId: z.string(),
-    //     }),
-    // })
-    // async getRmTaskByTaskId({ taskId }: { taskId: string }) {
-    //     const task = await this.taskRepository.findOne({ where: { taskId }, relations: ["relationshipManager", "customer"] });
-    //     if (!task) {
-    //         throw new Error(`Task with taskId ${taskId} not found`);
-    //     }
-    //     return task;
-    // }
-
     @Tool({
         name: "rm_create_task",
         description: "Tool to create a new Relationship Manager task",
@@ -63,11 +48,10 @@ export class RmTaskTool {
                 "invalid_type_error": "Task details must be a string",
                 "description": "The detailed description of the task to be created",
             }),
-            dueDate: z.date({
+            dueDate: z.string({
                 "required_error": "Due date is required",
-                "invalid_type_error": "Due date must be a date",
-                "description": "The due date for the task to be created",
-            }),
+                "description": "The due date for the task to be created in the format YYYY-MM-DD",
+            })
         })
     })
     async createRmTask({ rmId, customerId, taskType, status, taskDetails, dueDate }: { rmId: number, customerId: number, taskType: TaskType, status: TaskStatus, taskDetails: string, dueDate: Date }) {

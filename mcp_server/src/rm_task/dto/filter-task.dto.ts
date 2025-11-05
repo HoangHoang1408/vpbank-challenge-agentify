@@ -29,7 +29,7 @@ export class FilterTaskDto {
     @ApiPropertyOptional({
         description: 'Filter by task status',
         enum: TaskStatus,
-        example: TaskStatus.PENDING,
+        example: TaskStatus.IN_PROGRESS,
     })
     @IsEnum(TaskStatus)
     @IsOptional()
