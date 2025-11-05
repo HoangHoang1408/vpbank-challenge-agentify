@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Entity } from "typeorm/decorator/entity/Entity";
-import { Customer } from "../customer/entities/customer.entity";
-import { RelationshipManager } from "./rm.entity";
+import { Customer } from "../../customer/entities/customer.entity";
+import { RelationshipManager } from "../../rm/entities/rm.entity";
 
 export enum TaskType {
     CALL = "CALL",

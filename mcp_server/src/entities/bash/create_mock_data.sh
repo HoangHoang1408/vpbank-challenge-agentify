@@ -1,1 +1,0 @@
-npx ts-node src/entities/scripts/create_mock_data.ts

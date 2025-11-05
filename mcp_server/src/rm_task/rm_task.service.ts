@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FactRmTask, TaskStatus, TaskType } from '../entities/fact_rm_task.entity';
-import { RelationshipManager } from '../entities/rm.entity';
+import { FactRmTask, TaskStatus, TaskType } from './entities/fact_rm_task.entity';
+import { RelationshipManager } from '../rm/entities/rm.entity';
 import { Customer } from '../customer/entities/customer.entity';
 import { CreateTaskDto, UpdateTaskDto, FilterTaskDto } from './dto';
 

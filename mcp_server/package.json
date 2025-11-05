@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:export": "ts-node src/data/scripts/export_to_json.ts",
+    "db:seed": "ts-node src/data/scripts/create_mock_data.ts",
+    "db:clear": "ts-node src/data/scripts/clear_all.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",

@@ -1,7 +1,7 @@
 import { IsString, IsEnum, IsInt, IsDateString, Min, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { TaskType, TaskStatus } from '../../entities/fact_rm_task.entity';
+import { TaskType, TaskStatus } from '../entities/fact_rm_task.entity';
 
 export class UpdateTaskDto {
     @ApiPropertyOptional({

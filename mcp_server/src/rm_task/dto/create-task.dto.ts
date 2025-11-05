@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsEnum, IsInt, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskType, TaskStatus } from '../../entities/fact_rm_task.entity';
+import { TaskType, TaskStatus } from '../entities/fact_rm_task.entity';
 
 export class CreateTaskDto {
     @ApiProperty({

@@ -1,6 +1,7 @@
 import { IsEnum } from "class-validator";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { RelationshipManager } from "../../entities/rm.entity";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { RelationshipManager } from "../../rm/entities/rm.entity";
+import { Card } from "../../card/entities/card.entity";
 export enum Gender {
     MALE = 'male',
     FEMALE = 'female',
@@ -78,11 +79,22 @@ export class Customer {
     @Column()
     isActive: boolean;
 
+    @Column({ type: 'text' })
+    behaviorDescription: string;
+
     @ManyToOne(() => RelationshipManager, rm => rm.customers)
     relationshipManager: RelationshipManager;
 
     @Column()
     rmId: number;
+
+    @ManyToMany(() => Card, card => card.customers)
+    @JoinTable({
+        name: 'customer_cards',
+        joinColumn: { name: 'customerId', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'cardId', referencedColumnName: 'id' }
+    })
+    cards: Card[];
 
     @CreateDateColumn()
     createdAt: Date;
