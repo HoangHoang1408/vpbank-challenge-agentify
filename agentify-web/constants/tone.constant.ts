@@ -1,16 +1,19 @@
-import { ToneOptions } from '@/types';
+import { ToneOption } from '@/types';
 
-export const TONE_OPTIONS: ToneOptions = {
-  formal: {
+export const TONE_OPTIONS: ToneOption[] = [
+  {
+    id: 'formal',
     label: 'Formal & Professional',
     description: 'Structured, respectful communication',
   },
-  friendly: {
+  {
+    id: 'friendly',
     label: 'Friendly & Warm',
     description: 'Approachable and personable',
   },
-  balanced: {
+  {
+    id: 'balanced',
     label: 'Balanced',
     description: 'Professional yet personable',
   },
-};
+];
