@@ -1,2 +1,2 @@
-export type Step = 'method' | 'tone' | 'test';
-export type Method = 'email' | 'tone';
+export * from './common.type';
+export * from './tone.type';
