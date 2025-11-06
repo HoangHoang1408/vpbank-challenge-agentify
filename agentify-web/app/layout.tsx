@@ -1,4 +1,4 @@
-import { AntdProvider, ReactQueryProvider } from '@/components/provider';
+import { AntdProvider, ReactQueryProvider } from '@/components';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
