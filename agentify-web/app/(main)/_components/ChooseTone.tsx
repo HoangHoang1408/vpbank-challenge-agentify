@@ -37,28 +37,28 @@ const ChooseTone: FC<Props> = ({
       </Title>
 
       <div className="space-y-3!">
-        {TONE_OPTIONS.map((option) => (
+        {Object.entries(TONE_OPTIONS).map(([key, value]) => (
           <Card
             size="small"
-            key={option.id}
+            key={key}
             className={cn(
               'p-1! cursor-pointer transition-all border-2!',
-              selectedTone === option.id
+              selectedTone === key
                 ? 'border-primary! bg-primary/5!'
                 : 'hover:border-primary/50!',
             )}
-            onClick={() => setSelectedTone(option.id)}
+            onClick={() => setSelectedTone(key)}
           >
             <div className="flex items-center justify-between">
               <div>
                 <Title level={4} className="font-medium text-base mb-0!">
-                  {option.label}
+                  {value.label}
                 </Title>
                 <Paragraph type="secondary" className="text-sm mb-0!">
-                  {option.description}
+                  {value.description}
                 </Paragraph>
               </div>
-              {selectedTone === option.id && (
+              {selectedTone === key && (
                 <LuCircleCheck className="w-5 h-5 text-primary" />
               )}
             </div>
