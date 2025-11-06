@@ -18,6 +18,7 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
   const { tone, setTone } = useSettingStore();
 
   const [selectedTone, setSelectedTone] = useState<ToneOption | null>(tone);
+  const [customTone, setCustomTone] = useState('');
 
   useEffect(() => {
     if (tone && tone.id !== selectedTone?.id) {
@@ -67,7 +68,10 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
                 ? 'border-primary! bg-primary/5!'
                 : 'hover:border-primary/50!',
             )}
-            onClick={() => setSelectedTone(tone)}
+            onClick={() => {
+              setSelectedTone(tone);
+              setCustomTone(tone.description);
+            }}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -95,11 +99,15 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
         </label>
         <Input.TextArea
           className="border-2!"
-          // value={customTone}
-          // onChange={(e) => {
-          //   setCustomTone(e.target.value);
-          //   setSelectedTone('');
-          // }}
+          value={customTone}
+          onChange={(e) => {
+            setCustomTone(e.target.value);
+            setSelectedTone({
+              id: 'custom',
+              label: 'Custom',
+              description: e.target.value,
+            });
+          }}
           placeholder="Describe your preferred communication style..."
           rows={4}
         />
