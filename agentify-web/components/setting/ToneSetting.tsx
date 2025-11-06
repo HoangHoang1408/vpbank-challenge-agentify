@@ -26,7 +26,7 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
     }
   }, [tone]);
 
-  const handleSaveChanges = () => {
+  const handleSaveChange = () => {
     if (selectedTone) {
       setTone(selectedTone);
     }
@@ -42,8 +42,8 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
     <Modal
       open={open}
       onCancel={handleCancel}
-      onOk={handleSaveChanges}
-      okText="Save Changes"
+      onOk={handleSaveChange}
+      okText="Save Change"
       okButtonProps={{
         disabled: selectedTone?.id === tone?.id,
       }}

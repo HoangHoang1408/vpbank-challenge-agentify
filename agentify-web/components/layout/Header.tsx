@@ -3,10 +3,13 @@
 import { Button, Layout, Typography } from 'antd';
 import { FC, useState } from 'react';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
-import { ToneSetting } from '../setting';
+import { LuSignature } from 'react-icons/lu';
+import { EmailSignatureSetting, ToneSetting } from '../setting';
 
 const Header: FC = () => {
   const [openToneSetting, setOpenToneSetting] = useState(false);
+  const [openEmailSignatureSetting, setOpenEmailSignatureSetting] =
+    useState(false);
 
   return (
     <Layout.Header className="bg-white! border-b border-border">
@@ -20,6 +23,14 @@ const Header: FC = () => {
 
         <div className="flex justify-center items-center gap-2">
           <Button
+            icon={<LuSignature />}
+            color="default"
+            variant="outlined"
+            onClick={() => setOpenEmailSignatureSetting(true)}
+          >
+            Email Signature
+          </Button>
+          <Button
             icon={<HiOutlineCog6Tooth />}
             color="default"
             variant="outlined"
@@ -30,6 +41,10 @@ const Header: FC = () => {
         </div>
       </div>
 
+      <EmailSignatureSetting
+        open={openEmailSignatureSetting}
+        onClose={() => setOpenEmailSignatureSetting(false)}
+      />
       <ToneSetting
         open={openToneSetting}
         onClose={() => setOpenToneSetting(false)}
