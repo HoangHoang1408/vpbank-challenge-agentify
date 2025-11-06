@@ -36,16 +36,16 @@ const ChooseTone: FC<Props> = ({
           : 'Select Your Communication Style'}
       </Title>
 
-      <div className="space-y-3">
+      <div className="space-y-3!">
         {TONE_OPTIONS.map((option) => (
           <Card
             size="small"
             key={option.id}
             className={cn(
-              'p-1 cursor-pointer transition-all border-2',
+              'p-1! cursor-pointer transition-all border-2!',
               selectedTone === option.id
-                ? 'border-primary bg-primary/5'
-                : 'hover:border-primary/50',
+                ? 'border-primary! bg-primary/5!'
+                : 'hover:border-primary/50!',
             )}
             onClick={() => setSelectedTone(option.id)}
           >
@@ -71,7 +71,7 @@ const ChooseTone: FC<Props> = ({
           Or describe your own communication style:
         </label>
         <TextArea
-          className="border-2"
+          className="border-2!"
           value={customTone}
           onChange={(e) => {
             setCustomTone(e.target.value);

@@ -18,9 +18,9 @@ const ChooseMethod: FC<Props> = ({ handleMethodSelect }) => {
         Step 1: Choose Setup Method
       </Title>
 
-      <Space direction="vertical" className="gap-4 w-full">
+      <Space direction="vertical" className="gap-4! w-full">
         <Card
-          className="border-2 hover:border-primary transition-[border-color] duration-300 cursor-pointer"
+          className="border-2! hover:border-primary! transition-[border-color] duration-300 cursor-pointer"
           onClick={() => handleMethodSelect('email')}
         >
           <div className="flex gap-4">
@@ -37,7 +37,7 @@ const ChooseMethod: FC<Props> = ({ handleMethodSelect }) => {
         </Card>
 
         <Card
-          className="border-2 hover:border-primary transition-[border-color] duration-300 cursor-pointer"
+          className="border-2! hover:border-primary! transition-[border-color] duration-300 cursor-pointer"
           onClick={() => handleMethodSelect('tone')}
         >
           <div className="flex gap-4">

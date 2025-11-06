@@ -5,7 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Agentify',
-  description: 'Agentify is a platform for creating and managing AI agents',
+  description: 'Agentify is a platform for supporting your business',
 };
 
 interface Props {
