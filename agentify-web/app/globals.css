@@ -1,7 +1,3 @@
-@layer theme, base, reset, antd, components, utilities;
-
-@import url('antd/dist/reset.css') layer(reset);
-
 @import 'tailwindcss';
 
 @theme {
@@ -9,4 +5,6 @@
 
   --color-background: #f9fafb;
   --color-foreground: #091734;
+
+  --color-border: #dcdfe5;
 }
