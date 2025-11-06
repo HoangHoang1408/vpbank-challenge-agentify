@@ -1,10 +1,14 @@
 'use client';
 
 import type { FC } from 'react';
-import { Onboarding } from './_components';
+import { TodoList } from './_components';
 
 const Home: FC = () => {
-  return <Onboarding />;
+  return (
+    <>
+      <TodoList />
+    </>
+  );
 };
 
 export default Home;

@@ -13,6 +13,8 @@ const theme: ThemeConfig = {
     colorBorder: '#dcdfe5',
     colorBorderBg: '#dcdfe5',
     colorBorderSecondary: '#dcdfe5',
+
+    colorTextTertiary: '#667799',
   },
 };
 

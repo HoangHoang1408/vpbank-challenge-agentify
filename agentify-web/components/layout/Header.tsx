@@ -3,7 +3,6 @@
 import { Button, Layout, Typography } from 'antd';
 import { FC } from 'react';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
-import { LuPlug2 } from 'react-icons/lu';
 
 const Header: FC = () => {
   return (
@@ -17,9 +16,6 @@ const Header: FC = () => {
         </Typography.Title>
 
         <div className="flex justify-center items-center gap-2">
-          <Button icon={<LuPlug2 />} color="default" variant="outlined">
-            Integrations
-          </Button>
           <Button
             icon={<HiOutlineCog6Tooth />}
             color="default"
