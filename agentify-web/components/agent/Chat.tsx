@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { Button, Input, Layout, Typography } from 'antd';
 import { FC, useState } from 'react';
 import { LuSend, LuSparkles, LuX } from 'react-icons/lu';
+import ChatMessage from './ChatMessage';
 
 const AgentChat: FC = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -46,7 +47,9 @@ const AgentChat: FC = () => {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto"></div>
+        <div className="flex-1 overflow-y-auto p-4">
+          <ChatMessage />
+        </div>
 
         <div className="border-t border-border p-4">
           <div className="flex gap-2">
