@@ -8,6 +8,14 @@ async function bootstrap() {
   const nestApp = await NestFactory.create(AppModule);
   const configService = nestApp.get(ConfigService);
 
+  // Enable CORS for all origins
+  nestApp.enableCors({
+    origin: '*', // Allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: false,
+    allowedHeaders: '*',
+  });
+
   // Swagger/OpenAPI configuration
   const config = new DocumentBuilder()
     .setTitle('VPBank CRM API')
