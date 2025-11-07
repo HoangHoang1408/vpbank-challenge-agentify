@@ -3,6 +3,7 @@
 import {
   useDeleteTaskMutation,
   useMarkTaskAsCompletedMutation,
+  useMarkTaskAsInCompletedMutation,
 } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { ITask } from '@/types';
@@ -22,20 +23,39 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
 
   const { mutate: markTaskAsCompleted, isPending: isMarkingTaskAsCompleted } =
     useMarkTaskAsCompletedMutation();
+  const {
+    mutate: markTaskAsInCompleted,
+    isPending: isMarkingTaskAsInCompleted,
+  } = useMarkTaskAsInCompletedMutation();
   const { mutate: deleteTask, isPending: isDeletingTask } =
     useDeleteTaskMutation();
 
   const handleMarkTaskAsCompleted = () => {
-    if (task.status === 'COMPLETED') return;
-    markTaskAsCompleted(task.id, {
-      onSuccess: () => {
-        message.success('Task marked as completed');
-        refetchTasks();
-      },
-      onError: () => {
-        message.error('Failed to mark task as completed');
-      },
-    });
+    if (task.status === 'COMPLETED') {
+      markTaskAsInCompleted(task.id, {
+        onSuccess: () => {
+          message.success('Task marked as incompleted');
+          refetchTasks();
+        },
+        onError: (err) => {
+          message.error(
+            err.response?.data.message || 'Failed to mark task as completed',
+          );
+        },
+      });
+    } else {
+      markTaskAsCompleted(task.id, {
+        onSuccess: () => {
+          message.success('Task marked as completed');
+          refetchTasks();
+        },
+        onError: (err) => {
+          message.error(
+            err.response?.data.message || 'Failed to mark task as incompleted',
+          );
+        },
+      });
+    }
   };
 
   const handleDeleteTask = () => {
@@ -52,8 +72,10 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
             message.success('Task deleted successfully');
             refetchTasks();
           },
-          onError: () => {
-            message.error('Failed to delete task');
+          onError: (err) => {
+            message.error(
+              err.response?.data.message || 'Failed to delete task',
+            );
           },
         });
       },
@@ -66,7 +88,7 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
         <div className="flex items-center gap-2">
           <Button
             loading={
-              isMarkingTaskAsCompleted && {
+              (isMarkingTaskAsCompleted || isMarkingTaskAsInCompleted) && {
                 icon: <FaSpinner className="w-3.5 h-3.5" />,
               }
             }
