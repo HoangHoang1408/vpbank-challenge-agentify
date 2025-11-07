@@ -9,7 +9,7 @@ import EventCard from './EventCard';
 import EventCardHistory from './EventCardHistory';
 
 const EventList: FC = () => {
-  const { data: emailsDraft } = useGetListEmail({
+  const { data: emailsDraft, refetch: refetchEmailsDraft } = useGetListEmail({
     rmId: 1,
     status: 'DRAFT',
   });
@@ -67,6 +67,10 @@ const EventList: FC = () => {
           setSelectedEvent(null);
         }}
         event={selectedEvent}
+        refetchEmailsDraft={refetchEmailsDraft}
+        updateSelectedEvent={(event) => {
+          setSelectedEvent(event);
+        }}
       />
     </div>
   );

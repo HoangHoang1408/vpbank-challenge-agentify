@@ -33,3 +33,8 @@ export interface IGenEmail {
   expiresAt: string;
   updatedAt: string;
 }
+
+export interface IRegenerateEmailParams {
+  emailId: number;
+  customPrompt?: string;
+}
