@@ -21,6 +21,21 @@ services:
     networks:
       - backend-network
 
+  mcp_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp_server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
   # Optional: NestJS application service
   # Uncomment if you want to run the app in Docker
   # app:
