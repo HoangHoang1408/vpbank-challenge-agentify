@@ -1,0 +1,1 @@
+npx ts-node src/data/scripts/clear_all.ts
