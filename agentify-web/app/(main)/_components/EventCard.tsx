@@ -41,7 +41,10 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
             <div className="flex items-center gap-1">
               <div className="flex items-center gap-2">
                 <LuCalendar className="text-text-tertiary" />
-                <Typography.Text type="secondary" className="text-sm!">
+                <Typography.Text
+                  type="secondary"
+                  className="text-sm! capitalize"
+                >
                   {event.emailType.split('_').join(' ').toLowerCase()}
                 </Typography.Text>
               </div>

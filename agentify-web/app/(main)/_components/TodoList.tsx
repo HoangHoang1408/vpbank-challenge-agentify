@@ -1,5 +1,6 @@
 'use client';
 
+import { useGetTasksQuery } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { Button, Card, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
@@ -13,56 +14,18 @@ import {
   LuUser,
 } from 'react-icons/lu';
 
-interface ITodo {
-  id: number;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  createdAt: string;
-  category: string;
-}
-
-const mockData: ITodo[] = [
-  {
-    id: 1,
-    title: 'Update project timeline',
-    description:
-      'Revise Gantt chart and notify stakeholders of schedule changes',
-    isCompleted: true,
-    createdAt: '2025-12-05',
-    category: 'BuildTech Solutions',
-  },
-  {
-    id: 2,
-    title: 'Client onboarding call',
-    description:
-      'Introduction meeting with new client to discuss goals and expectations',
-    isCompleted: false,
-    createdAt: '2025-12-10',
-    category: 'NextGen Startups',
-  },
-  {
-    id: 3,
-    title: 'Product demo preparation',
-    description: 'Set up demo environment and prepare presentation materials',
-    isCompleted: false,
-    createdAt: '2025-12-15',
-    category: 'Innovate Labs',
-  },
-  {
-    id: 4,
-    title: 'Annual contract renewal',
-    description: 'Review terms and send renewal proposal to client',
-    isCompleted: true,
-    createdAt: '2025-12-20',
-    category: 'Enterprise Solutions Inc',
-  },
-];
-
 const TodoList: FC = () => {
   const [showAll, setShowAll] = useState(false);
 
-  const filteredData = showAll ? mockData : mockData.slice(0, 3);
+  const { data: tasks } = useGetTasksQuery({
+    rmId: 1,
+  });
+
+  const filteredData = tasks?.length
+    ? showAll
+      ? tasks
+      : tasks.slice(0, 3)
+    : [];
 
   return (
     <div className="mb-10">
@@ -79,22 +42,24 @@ const TodoList: FC = () => {
           </Typography.Text>
         </div>
 
-        {mockData.length > 0 ? (
+        {tasks?.length && tasks.length > 0 ? (
           <div>
             <Space direction="vertical" size={12} className="w-full">
-              {filteredData.map((todo) => (
-                <Card key={todo.id} size="small" className="w-full rounded-xl!">
+              {filteredData.map((task) => (
+                <Card key={task.id} size="small" className="w-full rounded-xl!">
                   <div className="flex justify-between">
                     <div className="flex items-center gap-2">
                       <Button
                         size="small"
                         shape="circle"
                         icon={
-                          todo.isCompleted ? (
+                          task.status === 'COMPLETED' ? (
                             <LuCheck className="w-3.5 h-3.5" />
                           ) : null
                         }
-                        variant={todo.isCompleted ? 'solid' : 'outlined'}
+                        variant={
+                          task.status === 'COMPLETED' ? 'solid' : 'outlined'
+                        }
                         color="primary"
                         className="w-4! min-w-4! h-4! p-0! mt-1.25! mb-auto!"
                       />
@@ -104,20 +69,20 @@ const TodoList: FC = () => {
                           level={3}
                           className={cn(
                             'font-semibold text-sm! sm:text-base! mb-1!',
-                            todo.isCompleted &&
+                            task.status === 'COMPLETED' &&
                               'line-through text-text-tertiary!',
                           )}
                         >
-                          {todo.title}
+                          {task.taskDetails}
                         </Typography.Title>
                         <Typography.Text
                           type="secondary"
                           className={cn(
                             'text-xs! sm:text-sm! mb-2!',
-                            todo.isCompleted && 'line-through',
+                            task.status === 'COMPLETED' && 'line-through',
                           )}
                         >
-                          {todo.description}
+                          {task.taskDetails}
                         </Typography.Text>
 
                         <div className="flex gap-4 mt-2">
@@ -125,9 +90,9 @@ const TodoList: FC = () => {
                             <LuUser className="w-3 h-3 text-text-tertiary!" />
                             <Typography.Text
                               type="secondary"
-                              className="text-xs! mb-0.25!"
+                              className="text-xs! mb-0.25! capitalize"
                             >
-                              {todo.category}
+                              {task.taskType.toLowerCase()}
                             </Typography.Text>
                           </div>
                           <div className="flex items-center gap-1">
@@ -136,7 +101,7 @@ const TodoList: FC = () => {
                               type="secondary"
                               className="text-xs! mb-0.25!"
                             >
-                              {dayjs(todo.createdAt).format('DD/MM/YYYY')}
+                              {dayjs(task.dueDate).format('DD/MM/YYYY')}
                             </Typography.Text>
                           </div>
                         </div>
@@ -154,7 +119,7 @@ const TodoList: FC = () => {
               ))}
             </Space>
 
-            {mockData.length > 3 && (
+            {tasks?.length && tasks.length > 3 && (
               <div className="mt-4 text-center">
                 <Button
                   type="link"
@@ -162,7 +127,9 @@ const TodoList: FC = () => {
                   iconPosition="end"
                   onClick={() => setShowAll(!showAll)}
                 >
-                  {showAll ? 'Show Less' : 'Show All'}
+                  {showAll
+                    ? 'See Less'
+                    : `See More (${tasks?.length - 3} more)`}
                 </Button>
               </div>
             )}
