@@ -1,0 +1,9 @@
+services:
+  agentify-web:
+    image: agentify-web
+    container_name: agentify-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${EXPOSE_PORT:-3050}:${PORT:-3000}
