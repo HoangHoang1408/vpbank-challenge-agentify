@@ -1,6 +1,8 @@
 services:
   agentify-web:
-    image: agentify-web
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: agentify-web
     restart: unless-stopped
     env_file:
