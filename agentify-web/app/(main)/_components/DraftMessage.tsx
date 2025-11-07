@@ -104,8 +104,8 @@ const DraftMessage: FC<Props> = ({
           updateSelectedEvent(data?.data);
           refetchEmailsDraft();
         },
-        onError: () => {
-          message.error('Failed to regenerate');
+        onError: (err) => {
+          message.error(err.response?.data.message || 'Failed to regenerate');
         },
       },
     );

@@ -10,3 +10,9 @@ export interface IResponse<T = unknown> {
   limit?: number;
   totalPages?: number;
 }
+
+export interface IError {
+  message: string;
+  error: string;
+  statusCode: number;
+}
