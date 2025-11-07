@@ -29,7 +29,7 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
               </Typography.Title>
               <Tag
                 color={
-                  event.customerRank === 'gold'
+                  event.customerRank === 'prime'
                     ? 'gold'
                     : event.customerRank === 'diamond'
                       ? 'cyan'

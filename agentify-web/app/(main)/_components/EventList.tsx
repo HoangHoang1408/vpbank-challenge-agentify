@@ -22,7 +22,7 @@ const mockData: IEvent[] = [
     customerRank: 'platinum',
     eventName: 'Loan Renewal - 7 Days',
     lastContact: '2025-11-04',
-    contacted: true,
+    contacted: false,
     contactedTime: '2025-11-07T01:26:55.000Z',
   },
   {
@@ -31,12 +31,12 @@ const mockData: IEvent[] = [
     customerRank: 'diamond',
     eventName: 'Quarterly Review Due',
     lastContact: '2025-10-06',
-    contacted: false,
+    contacted: true,
   },
   {
     id: 4,
     customerName: 'Sarah Williams',
-    customerRank: 'gold',
+    customerRank: 'prime',
     eventName: 'No Contact - 45 Days',
     lastContact: '2025-09-22',
     contacted: false,

@@ -86,7 +86,7 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
             </Tag>
             <Tag
               color={
-                event?.customerRank === 'gold'
+                event?.customerRank === 'prime'
                   ? 'gold'
                   : event?.customerRank === 'diamond'
                     ? 'cyan'
@@ -119,7 +119,7 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
             label: (
               <div className="flex justify-center items-center gap-2">
                 <LuMessageCircle />
-                <span className="font-semibold">Email</span>
+                <span className="font-semibold">Message</span>
               </div>
             ),
             value: 'message',
