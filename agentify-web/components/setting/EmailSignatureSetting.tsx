@@ -48,7 +48,7 @@ const EmailSignatureSetting: FC<Props> = ({ open, onClose }) => {
           </Typography.Title>
         </div>
       }
-      width={700}
+      width={800}
     >
       <div className="pt-4">
         <label className="text-sm font-medium mb-2 block">

@@ -8,11 +8,15 @@ import { LuCalendar, LuDot } from 'react-icons/lu';
 
 interface Props {
   event: IEvent;
+  onOpenDraftMessage: (event: IEvent) => void;
 }
 
-const EventCard: FC<Props> = ({ event }) => {
+const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
   return (
-    <Card className="rounded-xl! cursor-pointer hover:shadow-md transition-all duration-300">
+    <Card
+      className="rounded-xl! cursor-pointer hover:shadow-md transition-all duration-300"
+      onClick={() => onOpenDraftMessage(event)}
+    >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Avatar size={48} className="bg-[#193876]! font-medium">
@@ -52,7 +56,14 @@ const EventCard: FC<Props> = ({ event }) => {
             </div>
           </div>
         </div>
-        <Button type="primary" size="large">
+        <Button
+          type="primary"
+          size="large"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDraftMessage(event);
+          }}
+        >
           Draft Message
         </Button>
       </div>

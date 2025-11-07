@@ -55,7 +55,7 @@ const ToneSetting: FC<Props> = ({ open, onClose }) => {
           </Typography.Title>
         </div>
       }
-      width={700}
+      width={800}
     >
       <div className="space-y-3! mt-8">
         {TONE_OPTIONS.map((tone) => (

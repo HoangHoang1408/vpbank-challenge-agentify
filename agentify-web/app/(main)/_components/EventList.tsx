@@ -1,9 +1,9 @@
 'use client';
 
 import { IEvent } from '@/types';
-import { Card, Space, Typography } from 'antd';
+import { Space, Typography } from 'antd';
 import { FC, useEffect, useState } from 'react';
-import { LuStar } from 'react-icons/lu';
+import DraftMessage from './DraftMessage';
 import EventCard from './EventCard';
 import EventCardHistory from './EventCardHistory';
 
@@ -46,6 +46,8 @@ const mockData: IEvent[] = [
 const EventList: FC = () => {
   const [events, setEvents] = useState<IEvent[]>(mockData);
   const [historyEvents, setHistoryEvents] = useState<IEvent[]>([]);
+  const [openDraftMessage, setOpenDraftMessage] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
 
   useEffect(() => {
     setEvents(mockData.filter((event) => !event.contacted));
@@ -54,38 +56,29 @@ const EventList: FC = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto">
-      <div className="flex justify-between">
-        <div>
-          <Typography.Title
-            level={2}
-            className="text-xl! sm:text-2xl! md:text-3xl! mb-1!"
-          >
-            Special Events Reminders
-          </Typography.Title>
-          <Typography.Text type="secondary" className="text-sm! sm:text-base!">
-            Prioritized clients needing your attention
-          </Typography.Text>
-        </div>
-
-        <div className="flex items-center">
-          <Card
-            size="small"
-            className="rounded-xl! [&_.ant-card-body]:px-4! [&_.ant-card-body]:py-2!"
-          >
-            <div className="flex justify-center items-center gap-2">
-              <LuStar className="text-[#f6a823]" />
-              <Typography.Paragraph className="mb-0! font-medium">
-                4 clients
-              </Typography.Paragraph>
-            </div>
-          </Card>
-        </div>
+      <div>
+        <Typography.Title
+          level={2}
+          className="text-xl! sm:text-2xl! md:text-3xl! mb-1!"
+        >
+          Special Events Reminders
+        </Typography.Title>
+        <Typography.Text type="secondary" className="text-sm! sm:text-base!">
+          Prioritized clients needing your attention
+        </Typography.Text>
       </div>
 
       <div className="mt-8">
         <Space direction="vertical" className="w-full" size="middle">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard
+              key={event.id}
+              event={event}
+              onOpenDraftMessage={(event) => {
+                setSelectedEvent(event);
+                setOpenDraftMessage(true);
+              }}
+            />
           ))}
         </Space>
       </div>
@@ -102,6 +95,15 @@ const EventList: FC = () => {
           </Space>
         </div>
       )}
+
+      <DraftMessage
+        open={openDraftMessage}
+        onClose={() => {
+          setOpenDraftMessage(false);
+          setSelectedEvent(null);
+        }}
+        event={selectedEvent}
+      />
     </div>
   );
 };
