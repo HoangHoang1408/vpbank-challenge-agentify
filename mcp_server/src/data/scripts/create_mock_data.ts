@@ -3,6 +3,7 @@ import { RelationshipManager } from '../../rm/entities/rm.entity';
 import { Customer } from '../../customer/entities/customer.entity';
 import { FactRmTask } from '../../rm_task/entities/fact_rm_task.entity';
 import { Card } from '../../card/entities/card.entity';
+import { GeneratedEmail } from '../../gen_email/entities/generated-email.entity';
 import configuration from '../../config/configuration';
 import { RmSeeder } from '../seeders/rm.seeder';
 import { CustomerSeeder } from '../seeders/customer.seeder';
@@ -18,7 +19,7 @@ const AppDataSource = new DataSource({
     username: config.postgres.username,
     password: config.postgres.password,
     database: config.postgres.database,
-    entities: [RelationshipManager, Customer, FactRmTask, Card],
+    entities: [RelationshipManager, Customer, FactRmTask, Card, GeneratedEmail],
     synchronize: true,
     dropSchema: true, // This will drop and recreate the schema to handle enum changes
 });
