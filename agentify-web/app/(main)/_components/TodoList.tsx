@@ -3,8 +3,15 @@
 import { cn } from '@/lib/utils';
 import { Button, Card, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
-import { FC } from 'react';
-import { LuCalendar, LuCheck, LuTrash2, LuUser } from 'react-icons/lu';
+import { FC, useState } from 'react';
+import {
+  LuCalendar,
+  LuCheck,
+  LuChevronsDown,
+  LuChevronsUp,
+  LuTrash2,
+  LuUser,
+} from 'react-icons/lu';
 
 interface ITodo {
   id: number;
@@ -53,6 +60,10 @@ const mockData: ITodo[] = [
 ];
 
 const TodoList: FC = () => {
+  const [showAll, setShowAll] = useState(false);
+
+  const filteredData = showAll ? mockData : mockData.slice(0, 3);
+
   return (
     <div className="mb-10">
       <Card
@@ -69,78 +80,93 @@ const TodoList: FC = () => {
         </div>
 
         {mockData.length > 0 ? (
-          <Space direction="vertical" size={12} className="w-full">
-            {mockData.map((todo) => (
-              <Card key={todo.id} size="small" className="w-full rounded-xl!">
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="small"
-                      shape="circle"
-                      icon={
-                        todo.isCompleted ? (
-                          <LuCheck className="w-3.5 h-3.5" />
-                        ) : null
-                      }
-                      variant={todo.isCompleted ? 'solid' : 'outlined'}
-                      color="primary"
-                      className="w-4! min-w-4! h-4! p-0! mt-1.25! mb-auto!"
-                    />
+          <div>
+            <Space direction="vertical" size={12} className="w-full">
+              {filteredData.map((todo) => (
+                <Card key={todo.id} size="small" className="w-full rounded-xl!">
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="small"
+                        shape="circle"
+                        icon={
+                          todo.isCompleted ? (
+                            <LuCheck className="w-3.5 h-3.5" />
+                          ) : null
+                        }
+                        variant={todo.isCompleted ? 'solid' : 'outlined'}
+                        color="primary"
+                        className="w-4! min-w-4! h-4! p-0! mt-1.25! mb-auto!"
+                      />
 
-                    <div>
-                      <Typography.Title
-                        level={3}
-                        className={cn(
-                          'font-semibold text-sm! sm:text-base! mb-1!',
-                          todo.isCompleted &&
-                            'line-through text-text-tertiary!',
-                        )}
-                      >
-                        {todo.title}
-                      </Typography.Title>
-                      <Typography.Text
-                        type="secondary"
-                        className={cn(
-                          'text-xs! sm:text-sm! mb-2!',
-                          todo.isCompleted && 'line-through',
-                        )}
-                      >
-                        {todo.description}
-                      </Typography.Text>
+                      <div>
+                        <Typography.Title
+                          level={3}
+                          className={cn(
+                            'font-semibold text-sm! sm:text-base! mb-1!',
+                            todo.isCompleted &&
+                              'line-through text-text-tertiary!',
+                          )}
+                        >
+                          {todo.title}
+                        </Typography.Title>
+                        <Typography.Text
+                          type="secondary"
+                          className={cn(
+                            'text-xs! sm:text-sm! mb-2!',
+                            todo.isCompleted && 'line-through',
+                          )}
+                        >
+                          {todo.description}
+                        </Typography.Text>
 
-                      <div className="flex gap-4 mt-2">
-                        <div className="flex items-center gap-1">
-                          <LuUser className="w-3 h-3 text-text-tertiary!" />
-                          <Typography.Text
-                            type="secondary"
-                            className="text-xs! mb-0.25!"
-                          >
-                            {todo.category}
-                          </Typography.Text>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <LuCalendar className="w-3 h-3 text-text-tertiary!" />
-                          <Typography.Text
-                            type="secondary"
-                            className="text-xs! mb-0.25!"
-                          >
-                            {dayjs(todo.createdAt).format('DD/MM/YYYY')}
-                          </Typography.Text>
+                        <div className="flex gap-4 mt-2">
+                          <div className="flex items-center gap-1">
+                            <LuUser className="w-3 h-3 text-text-tertiary!" />
+                            <Typography.Text
+                              type="secondary"
+                              className="text-xs! mb-0.25!"
+                            >
+                              {todo.category}
+                            </Typography.Text>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <LuCalendar className="w-3 h-3 text-text-tertiary!" />
+                            <Typography.Text
+                              type="secondary"
+                              className="text-xs! mb-0.25!"
+                            >
+                              {dayjs(todo.createdAt).format('DD/MM/YYYY')}
+                            </Typography.Text>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <Button
-                    shape="circle"
-                    icon={<LuTrash2 />}
-                    type="text"
-                    danger
-                  />
-                </div>
-              </Card>
-            ))}
-          </Space>
+                    <Button
+                      shape="circle"
+                      icon={<LuTrash2 />}
+                      type="text"
+                      danger
+                    />
+                  </div>
+                </Card>
+              ))}
+            </Space>
+
+            {mockData.length > 3 && (
+              <div className="mt-4 text-center">
+                <Button
+                  type="link"
+                  icon={showAll ? <LuChevronsUp /> : <LuChevronsDown />}
+                  iconPosition="end"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? 'Show Less' : 'Show All'}
+                </Button>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="mt-12 mb-8">
             <Typography.Paragraph
