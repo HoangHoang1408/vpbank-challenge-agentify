@@ -57,6 +57,16 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
     }
   }, [messageType, event, open, form]);
 
+  const handleCopyToClipboard = () => {
+    if (messageType === 'email') {
+      navigator.clipboard.writeText(
+        `Subject: ${form.getFieldValue('subject')}\n\n\n${form.getFieldValue('message')}`,
+      );
+    } else if (messageType === 'message') {
+      navigator.clipboard.writeText(form.getFieldValue('message'));
+    }
+  };
+
   return (
     <Modal
       open={open}
@@ -73,6 +83,7 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
             block
             variant="solid"
             color="cyan"
+            onClick={handleCopyToClipboard}
           >
             Copy to Clipboard
           </Button>
