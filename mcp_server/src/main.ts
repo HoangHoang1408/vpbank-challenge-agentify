@@ -10,11 +10,14 @@ async function bootstrap() {
 
   // Swagger/OpenAPI configuration
   const config = new DocumentBuilder()
-    .setTitle('Task Management API')
-    .setDescription('API documentation for RM Task Management System')
+    .setTitle('VPBank CRM API')
+    .setDescription('API documentation for VPBank CRM & Email Generation System')
     .setVersion('1.0')
-    .addTag('tasks', 'Task management endpoints')
+    .addTag('tasks', 'RM Task management endpoints')
     .addTag('customers', 'Customer management endpoints')
+    .addTag('Generated Emails', 'AI-powered personalized email generation and management')
+    .addTag('relationship-managers', 'Relationship Manager management endpoints')
+    .addTag('cards', 'Credit/Debit card management endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(nestApp, config);

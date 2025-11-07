@@ -1,0 +1,261 @@
+import { Customer } from "../../customer/entities/customer.entity";
+import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+
+export enum CardType {
+    DEBIT = "DEBIT",
+    CREDIT = "CREDIT",
+}
+export enum CardNetwork {
+    VISA = "VISA",
+    MASTERCARD = "MASTERCARD",
+}
+
+@Entity()
+export class Card {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @ManyToMany(() => Customer, customer => customer.cards)
+    customers: Customer[];
+
+    @Column({ type: 'enum', enum: CardType })
+    cardType: CardType;
+
+    @Column({ unique: true })
+    cardProductName: string;
+
+    @Column()
+    cardDescription: string;
+
+    @Column()
+    targetDescription: string;
+
+    @Column({ type: 'enum', enum: CardNetwork })
+    cardNetwork: CardNetwork;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column({ default: true })
+    isActive: boolean;
+}
+
+
+
+
+
+import { IsEnum } from "class-validator";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { RelationshipManager } from "../../rm/entities/rm.entity";
+import { Card } from "../../card/entities/card.entity";
+export enum Gender {
+    MALE = 'male',
+    FEMALE = 'female',
+    OTHER = 'other',
+}
+
+export enum JobTitle {
+    ENGINEER = 'Kỹ sư',
+    SCIENTIST = 'Nhà khoa học',
+    TEACHER = 'Giáo viên',
+    DOCTOR = 'Bác sĩ',
+    LAWYER = 'Luật sư',
+    ACCOUNTANT = 'Kế toán',
+    ARTIST = 'Nghệ sĩ',
+    MUSICIAN = 'Nhạc sĩ',
+    WRITER = 'Viết sử',
+    PROGRAMMER = 'Lập trình viên',
+    DESIGNER = 'Thiết kế',
+    MARKETER = 'Marketing',
+}
+export enum Segment {
+    DIAMOND_ELITE = 'Diamond Elite',
+    DIAMOND = 'Diamond',
+    PRE_DIAMOND = 'Pre-Diamond',
+    CHAMPION_PRIME = 'Champion Prime',
+    RISING_PRIME = 'Rising Prime',
+    UPPERMEGA_PRIME = 'Uppermega Prime',
+    MEGA_PRIME = 'Mega Prime',
+}
+
+@Entity()
+export class Customer {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    customerId: string;
+
+    @Column()
+    name: string;
+
+    @Column()
+    email: string;
+
+    @Column()
+    phone: string;
+
+    @Column()
+    address: string;
+
+    @Column()
+    country: string;
+
+    @Column({ type: 'date' })
+    dob: Date;
+
+    @Column({ type: 'enum', enum: Gender })
+    @IsEnum(Gender)
+    gender: Gender;
+
+    @Column({ type: 'enum', enum: JobTitle })
+    @IsEnum(JobTitle)
+    jobTitle: JobTitle;
+
+    @Column({ type: 'enum', enum: Segment })
+    @IsEnum(Segment)
+    segment: Segment;
+
+    @Column()
+    state: string;
+
+    @Column()
+    zip: string;
+
+    @Column()
+    isActive: boolean;
+
+    @Column({ type: 'text' })
+    behaviorDescription: string;
+
+    @ManyToOne(() => RelationshipManager, rm => rm.customers)
+    relationshipManager: RelationshipManager;
+
+    @Column()
+    rmId: number;
+
+    @ManyToMany(() => Card, card => card.customers)
+    @JoinTable({
+        name: 'customer_cards',
+        joinColumn: { name: 'customerId', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'cardId', referencedColumnName: 'id' }
+    })
+    cards: Card[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+}
+
+
+import { Column, CreateDateColumn, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Entity } from "typeorm/decorator/entity/Entity";
+import { Customer } from "../../customer/entities/customer.entity";
+
+export enum RmLevel {
+    LEVEL_4 = "Level 4",
+    LEVEL_5 = "Level 5",
+    LEVEL_6 = "Level 6",
+    LEVEL_7 = "Level 7",
+}
+
+@Entity()
+export class RelationshipManager {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    employeeId: number;
+
+    @Column()
+    name: string;
+
+    @Column({ type: 'date' })
+    dob: Date;
+
+    @Column({ type: 'enum', enum: RmLevel })
+    level: RmLevel;
+
+    @Column()
+    title: string;
+
+    @Column({ type: 'date' })
+    hireDate: Date;
+
+    @Column()
+    isActive: boolean;
+
+    @OneToMany(() => Customer, customer => customer.relationshipManager)
+    customers: Customer[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+}
+
+
+import { Column, CreateDateColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Entity } from "typeorm/decorator/entity/Entity";
+import { Customer } from "../../customer/entities/customer.entity";
+import { RelationshipManager } from "../../rm/entities/rm.entity";
+
+export enum TaskType {
+    CALL = "CALL",
+    EMAIL = "EMAIL",
+    MEETING = "MEETING",
+    FOLLOW_UP = "FOLLOW_UP",
+    SEND_INFOR_PACKAGE = "SEND_INFO_PACKAGE"
+}
+
+export enum TaskStatus {
+    COMPLETED = "COMPLETED",
+    IN_PROGRESS = "IN_PROGRESS"
+}
+
+@Entity()
+export class FactRmTask {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    taskId: string;
+
+    @ManyToOne(() => RelationshipManager, rm => rm.id)
+    relationshipManager: RelationshipManager;
+
+    @Column()
+    rmId: number;
+
+    @ManyToOne(() => Customer, customer => customer.id)
+    customer: Customer;
+
+    @Column()
+    customerId: number;
+
+    @Column({ type: 'enum', enum: TaskType })
+    taskType: TaskType;
+
+    @Column({ type: 'enum', enum: TaskStatus })
+    status: TaskStatus;
+
+    @Column()
+    taskDetails: string;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @Column({ type: 'date' })
+    dueDate: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+}

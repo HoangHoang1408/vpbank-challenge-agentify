@@ -3,19 +3,20 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import configuration from './config/configuration';
 import * as Joi from 'joi';
 import { FactRmTask } from './rm_task/entities/fact_rm_task.entity';
 import { RelationshipManager } from './rm/entities/rm.entity';
 import { Customer } from './customer/entities/customer.entity';
 import { Card } from './card/entities/card.entity';
-import { McpModule } from '@rekog/mcp-nest';
+import { GeneratedEmail } from './gen_email/entities/generated-email.entity';
 import { CustomerModule } from './customer/customer.module';
 import { RmTaskModule } from './rm_task/rm_task.module';
 import { RmModule } from './rm/rm.module';
 import { CardModule } from './card/card.module';
-import { RmTaskTool } from './tools/rm_task.tool';
 import { ToolModule } from './tools/tool.module';
+import { GenEmailModule } from './gen_email/genEmail.module';
 
 @Module({
   imports: [
@@ -30,8 +31,10 @@ import { ToolModule } from './tools/tool.module';
         POSTGRES_USERNAME: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_NAME: Joi.string().required(),
+        OPENAI_API_KEY: Joi.string().required(),
       }),
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -41,7 +44,7 @@ import { ToolModule } from './tools/tool.module';
         username: configService.get('postgres.username'),
         password: configService.get<string>('postgres.password'),
         database: configService.get<string>('postgres.database'),
-        entities: [FactRmTask, RelationshipManager, Customer, Card],
+        entities: [FactRmTask, RelationshipManager, Customer, Card, GeneratedEmail],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
@@ -51,7 +54,8 @@ import { ToolModule } from './tools/tool.module';
     RmModule,
     RmTaskModule,
     CardModule,
-    ToolModule
+    ToolModule,
+    GenEmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

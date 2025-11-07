@@ -9,5 +9,8 @@ const configuration = () => ({
         password: process.env.POSTGRES_PASSWORD ?? 'postgres',
         database: process.env.POSTGRES_NAME ?? 'postgres',
     },
+    openai: {
+        apiKey: process.env.OPENAI_API_KEY ?? '',
+    },
 });
 export default configuration;

@@ -16,9 +16,10 @@ import {
     ApiOperation,
     ApiResponse,
     ApiParam,
+    ApiBody,
 } from '@nestjs/swagger';
 import { RmService } from './rm.service';
-import { CreateRmDto, UpdateRmDto, FilterRmDto } from './dto';
+import { CreateRmDto, UpdateRmDto, FilterRmDto, UpdateCustomPromptDto } from './dto';
 import { RelationshipManager } from './entities/rm.entity';
 
 @ApiTags('relationship-managers')
@@ -193,6 +194,101 @@ export class RmController {
     })
     async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
         return await this.rmService.remove(id);
+    }
+
+    @Patch(':id/custom-prompt')
+    @ApiOperation({
+        summary: 'Update RM custom prompt',
+        description: 'Set or update the custom prompt that will be applied to all auto-generated emails for this RM. This allows each RM to personalize their communication style across all generated content.',
+    })
+    @ApiParam({ name: 'id', type: 'number', description: 'RM ID' })
+    @ApiBody({
+        type: UpdateCustomPromptDto,
+        description: 'Custom prompt configuration',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Custom prompt successfully updated',
+        schema: {
+            properties: {
+                success: { type: 'boolean', example: true },
+                message: { type: 'string', example: 'Custom prompt updated successfully' },
+                data: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', example: 1 },
+                        customPrompt: {
+                            type: 'string',
+                            example: 'Tôi muốn tất cả email đều có giọng điệu vui vẻ và nhiệt tình hơn.',
+                            nullable: true,
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'RM not found',
+    })
+    async updateCustomPrompt(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: UpdateCustomPromptDto
+    ) {
+        const rm = await this.rmService.update(id, { customPrompt: dto.customPrompt });
+
+        return {
+            success: true,
+            message: 'Custom prompt updated successfully',
+            data: {
+                id: rm.id,
+                customPrompt: rm.customPrompt,
+            },
+        };
+    }
+
+    @Get(':id/custom-prompt')
+    @ApiOperation({
+        summary: 'Get RM custom prompt',
+        description: 'Retrieve the current custom prompt configuration for this RM',
+    })
+    @ApiParam({ name: 'id', type: 'number', description: 'RM ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved custom prompt',
+        schema: {
+            properties: {
+                success: { type: 'boolean', example: true },
+                data: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', example: 1 },
+                        name: { type: 'string', example: 'Nguyen Van A' },
+                        customPrompt: {
+                            type: 'string',
+                            example: 'Tôi muốn tất cả email đều có giọng điệu vui vẻ và nhiệt tình hơn.',
+                            nullable: true,
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'RM not found',
+    })
+    async getCustomPrompt(@Param('id', ParseIntPipe) id: number) {
+        const rm = await this.rmService.findOne(id);
+
+        return {
+            success: true,
+            data: {
+                id: rm.id,
+                name: rm.name,
+                customPrompt: rm.customPrompt,
+            },
+        };
     }
 }
 

@@ -55,6 +55,6 @@ export class RmTaskTool {
         })
     })
     async createRmTask({ rmId, customerId, taskType, status, taskDetails, dueDate }: { rmId: number, customerId: number, taskType: TaskType, status: TaskStatus, taskDetails: string, dueDate: Date }) {
-        return "Okay"
+        return "CAN_CALL_TOOL"
     }
 }
