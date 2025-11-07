@@ -21,10 +21,19 @@ const TodoList: FC = () => {
     rmId: 1,
   });
 
-  const filteredData = tasks?.length
+  const sortedTasks = tasks?.length
+    ? [...tasks].sort((a, b) => {
+        if (a.status !== b.status) {
+          return a.status === 'IN_PROGRESS' ? -1 : 1;
+        }
+        return dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf();
+      })
+    : [];
+
+  const filteredData = sortedTasks?.length
     ? showAll
-      ? tasks
-      : tasks.slice(0, 3)
+      ? sortedTasks
+      : sortedTasks.slice(0, 3)
     : [];
 
   return (
@@ -99,7 +108,11 @@ const TodoList: FC = () => {
                             <LuCalendar className="w-3 h-3 text-text-tertiary!" />
                             <Typography.Text
                               type="secondary"
-                              className="text-xs! mb-0.25!"
+                              className={cn(
+                                'text-xs! mb-0.25!',
+                                dayjs(task.dueDate).isBefore(dayjs(), 'day') &&
+                                  'text-red-500!',
+                              )}
                             >
                               {dayjs(task.dueDate).format('DD/MM/YYYY')}
                             </Typography.Text>
