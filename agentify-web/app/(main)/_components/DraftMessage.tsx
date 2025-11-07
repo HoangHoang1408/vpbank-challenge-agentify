@@ -81,6 +81,7 @@ const DraftMessage: FC<Props> = ({
     } else if (messageType === 'message') {
       navigator.clipboard.writeText(form.getFieldValue('message'));
     }
+    message.success('Copied to clipboard');
   };
 
   useEffect(() => {
