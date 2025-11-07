@@ -1,14 +1,13 @@
 'use client';
 
-import { IEvent } from '@/types';
+import { IGenEmail } from '@/types';
 import { Avatar, Button, Card, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
 import { FC } from 'react';
 import { LuCalendar, LuDot } from 'react-icons/lu';
 
 interface Props {
-  event: IEvent;
-  onOpenDraftMessage: (event: IEvent) => void;
+  event: IGenEmail;
+  onOpenDraftMessage: (event: IGenEmail) => void;
 }
 
 const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
@@ -20,37 +19,41 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Avatar size={48} className="bg-[#193876]! font-medium">
-            {event.customerName.split(' ').map((name) => name[0])}
+            {event.customer.name
+              .split(' ')
+              .map((name) => name[0])
+              .slice(-2)
+              .join('')}
           </Avatar>
           <div>
             <div className="flex items-center gap-2">
               <Typography.Title level={5} className="mb-0!">
-                {event.customerName}
+                {event.customer.name}
               </Typography.Title>
               <Tag
                 color={
-                  event.customerRank === 'prime'
+                  event.customer.segment.toLowerCase().includes('prime')
                     ? 'gold'
-                    : event.customerRank === 'diamond'
+                    : event.customer.segment.toLowerCase().includes('diamond')
                       ? 'cyan'
                       : 'purple'
                 }
                 className="rounded-xl! text-xs! font-medium"
               >
-                {event.customerRank}
+                {event.customer.segment}
               </Tag>
             </div>
             <div className="flex items-center gap-1">
               <div className="flex items-center gap-2">
                 <LuCalendar className="text-text-tertiary" />
                 <Typography.Text type="secondary" className="text-sm!">
-                  {event.eventName}
+                  {event.emailType.split('_').join(' ').toLowerCase()}
                 </Typography.Text>
               </div>
               <LuDot className="text-text-tertiary mt-1.5" />
               <div>
                 <Typography.Text type="secondary" className="text-sm!">
-                  Last Contact: {dayjs(event.lastContact).fromNow()}
+                  Last Contact:
                 </Typography.Text>
               </div>
             </div>

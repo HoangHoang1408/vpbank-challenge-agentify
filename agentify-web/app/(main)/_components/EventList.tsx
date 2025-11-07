@@ -1,6 +1,7 @@
 'use client';
 
-import { IEvent } from '@/types';
+import { useGetListEmail } from '@/lib/api';
+import { IEvent, IGenEmail } from '@/types';
 import { Space, Typography } from 'antd';
 import { FC, useEffect, useState } from 'react';
 import DraftMessage from './DraftMessage';
@@ -44,13 +45,15 @@ const mockData: IEvent[] = [
 ];
 
 const EventList: FC = () => {
-  const [events, setEvents] = useState<IEvent[]>(mockData);
+  const { data: genEmails } = useGetListEmail({
+    rmId: 1,
+  });
+
   const [historyEvents, setHistoryEvents] = useState<IEvent[]>([]);
   const [openDraftMessage, setOpenDraftMessage] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<IGenEmail | null>(null);
 
   useEffect(() => {
-    setEvents(mockData.filter((event) => !event.contacted));
     setHistoryEvents(mockData.filter((event) => event.contacted));
   }, []);
 
@@ -70,7 +73,7 @@ const EventList: FC = () => {
 
       <div className="mt-8">
         <Space direction="vertical" className="w-full" size="middle">
-          {events.map((event) => (
+          {genEmails?.data?.map((event) => (
             <EventCard
               key={event.id}
               event={event}

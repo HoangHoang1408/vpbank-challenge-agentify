@@ -1,6 +1,6 @@
 'use client';
 
-import { IEvent } from '@/types';
+import { IGenEmail } from '@/types';
 import {
   Alert,
   Avatar,
@@ -27,7 +27,7 @@ const MESSAGE_TYPES = ['email', 'message'] as const;
 interface Props {
   open: boolean;
   onClose: () => void;
-  event: IEvent | null;
+  event: IGenEmail | null;
 }
 
 const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
@@ -74,27 +74,31 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
     >
       <div className="flex items-center gap-2">
         <Avatar size={40} className="bg-[#193876]! font-medium">
-          {event?.customerName.split(' ').map((name) => name[0])}
+          {event?.customer?.name
+            .split(' ')
+            .map((name) => name[0])
+            .slice(-2)
+            .join('')}
         </Avatar>
         <div>
           <Typography.Title level={5} className="text-2xl! mb-0!">
-            {event?.customerName}
+            {event?.customer?.name}
           </Typography.Title>
           <div className="flex items-center gap-1 mt-1">
             <Tag className="rounded-xl! text-xs! font-medium">
-              {event?.eventName}
+              {event?.emailType.split('_').join(' ').toLowerCase()}
             </Tag>
             <Tag
               color={
-                event?.customerRank === 'prime'
+                event?.customer?.segment.toLowerCase().includes('prime')
                   ? 'gold'
-                  : event?.customerRank === 'diamond'
+                  : event?.customer?.segment.toLowerCase().includes('diamond')
                     ? 'cyan'
                     : 'purple'
               }
               className="rounded-xl! text-xs! font-medium"
             >
-              {event?.customerRank}
+              {event?.customer?.segment}
             </Tag>
           </div>
         </div>
