@@ -19,3 +19,11 @@ export const useMarkTaskAsCompletedMutation = () =>
       return response.data;
     },
   });
+
+export const useDeleteTaskMutation = () =>
+  useMutation<ITask, AxiosError, number>({
+    mutationFn: async (taskId: number) => {
+      const response = await API.delete<ITask>(`tasks/${taskId}`);
+      return response.data;
+    },
+  });

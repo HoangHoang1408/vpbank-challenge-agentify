@@ -1,6 +1,9 @@
 'use client';
 
-import { useMarkTaskAsCompletedMutation } from '@/lib/api';
+import {
+  useDeleteTaskMutation,
+  useMarkTaskAsCompletedMutation,
+} from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { ITask } from '@/types';
 import { App, Button, Card, Typography } from 'antd';
@@ -15,10 +18,12 @@ interface Props {
 }
 
 const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
 
   const { mutate: markTaskAsCompleted, isPending: isMarkingTaskAsCompleted } =
     useMarkTaskAsCompletedMutation();
+  const { mutate: deleteTask, isPending: isDeletingTask } =
+    useDeleteTaskMutation();
 
   const handleMarkTaskAsCompleted = () => {
     if (task.status === 'COMPLETED') return;
@@ -29,6 +34,28 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
       },
       onError: () => {
         message.error('Failed to mark task as completed');
+      },
+    });
+  };
+
+  const handleDeleteTask = () => {
+    modal.confirm({
+      title: 'Delete Task',
+      content:
+        'Are you sure you want to delete this task? This action cannot be undone.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        deleteTask(task.id, {
+          onSuccess: () => {
+            message.success('Task deleted successfully');
+            refetchTasks();
+          },
+          onError: () => {
+            message.error('Failed to delete task');
+          },
+        });
       },
     });
   };
@@ -107,7 +134,14 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
           </div>
         </div>
 
-        <Button shape="circle" icon={<LuTrash2 />} type="text" danger />
+        <Button
+          shape="circle"
+          icon={<LuTrash2 />}
+          type="text"
+          danger
+          loading={isDeletingTask}
+          onClick={handleDeleteTask}
+        />
       </div>
     </Card>
   );
