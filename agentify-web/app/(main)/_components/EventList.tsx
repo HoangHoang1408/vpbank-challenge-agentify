@@ -1,61 +1,22 @@
 'use client';
 
 import { useGetListEmail } from '@/lib/api';
-import { IEvent, IGenEmail } from '@/types';
+import { IGenEmail } from '@/types';
 import { Space, Typography } from 'antd';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import DraftMessage from './DraftMessage';
 import EventCard from './EventCard';
 import EventCardHistory from './EventCardHistory';
 
-const mockData: IEvent[] = [
-  {
-    id: 1,
-    customerName: 'Margaret Chen',
-    customerRank: 'diamond',
-    eventName: 'Birthday Today',
-    lastContact: '2025-10-24',
-    contacted: false,
-  },
-  {
-    id: 2,
-    customerName: 'David Thompson',
-    customerRank: 'platinum',
-    eventName: 'Loan Renewal - 7 Days',
-    lastContact: '2025-11-04',
-    contacted: false,
-    contactedTime: '2025-11-07T01:26:55.000Z',
-  },
-  {
-    id: 3,
-    customerName: 'Acme Corporation',
-    customerRank: 'diamond',
-    eventName: 'Quarterly Review Due',
-    lastContact: '2025-10-06',
-    contacted: true,
-  },
-  {
-    id: 4,
-    customerName: 'Sarah Williams',
-    customerRank: 'prime',
-    eventName: 'No Contact - 45 Days',
-    lastContact: '2025-09-22',
-    contacted: false,
-  },
-];
-
 const EventList: FC = () => {
-  const { data: genEmails } = useGetListEmail({
+  const { data: emailsDraft } = useGetListEmail({
     rmId: 1,
+    status: 'DRAFT',
   });
 
-  const [historyEvents, setHistoryEvents] = useState<IEvent[]>([]);
+  const [historyEvents, setHistoryEvents] = useState<IGenEmail[]>([]);
   const [openDraftMessage, setOpenDraftMessage] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<IGenEmail | null>(null);
-
-  useEffect(() => {
-    setHistoryEvents(mockData.filter((event) => event.contacted));
-  }, []);
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -73,7 +34,7 @@ const EventList: FC = () => {
 
       <div className="mt-8">
         <Space direction="vertical" className="w-full" size="middle">
-          {genEmails?.data?.map((event) => (
+          {emailsDraft?.data?.map((event) => (
             <EventCard
               key={event.id}
               event={event}

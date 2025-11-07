@@ -1,12 +1,12 @@
 'use client';
 
-import { IEvent } from '@/types';
+import { IGenEmail } from '@/types';
 import { Card, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { FC } from 'react';
 
 interface Props {
-  event: IEvent;
+  event: IGenEmail;
 }
 
 const EventCardHistory: FC<Props> = ({ event }) => {
@@ -16,7 +16,7 @@ const EventCardHistory: FC<Props> = ({ event }) => {
         <div>
           <div className="flex items-center gap-2">
             <Typography.Text className="font-semibold text-sm! sm:text-base!">
-              {event.customerName}
+              {event.customer.name}
             </Typography.Text>
             <Tag className="text-xs! font-semibold rounded-xl!">Message</Tag>
           </div>
@@ -26,7 +26,7 @@ const EventCardHistory: FC<Props> = ({ event }) => {
         </div>
         <div>
           <Typography.Text type="secondary" className="text-sm! sm:text-xs!">
-            {dayjs(event.contactedTime).format('DD/MM/YYYY HH:mm:ss A')}
+            {dayjs(event.updatedAt).format('DD/MM/YYYY HH:mm:ss A')}
           </Typography.Text>
         </div>
       </div>
