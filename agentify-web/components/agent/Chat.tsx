@@ -1,10 +1,11 @@
 import { cn } from '@/lib/utils';
-import { Button, Layout, Typography } from 'antd';
+import { Button, Input, Layout, Typography } from 'antd';
 import { FC, useState } from 'react';
-import { LuSparkles, LuX } from 'react-icons/lu';
+import { LuSend, LuSparkles, LuX } from 'react-icons/lu';
 
 const AgentChat: FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+  const [messagesInput, setMessagesInput] = useState<string>('');
 
   return (
     <Layout.Sider
@@ -15,8 +16,8 @@ const AgentChat: FC = () => {
       theme="light"
       className="border-l border-border"
     >
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center bg-primary/5 border-b border-border p-4">
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center bg-primary/5 border-b border-border p-4 h-16">
           <div className="flex items-center gap-1.5">
             <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center mt-1">
               <LuSparkles className="w-5 h-5 text-white" />
@@ -43,6 +44,25 @@ const AgentChat: FC = () => {
             type="text"
             onClick={() => setCollapsed(true)}
           />
+        </div>
+
+        <div className="flex-1 overflow-y-auto"></div>
+
+        <div className="border-t border-border p-4">
+          <div className="flex gap-2">
+            <Input.TextArea
+              placeholder="Ask me anything..."
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              value={messagesInput}
+              onChange={(e) => setMessagesInput(e.target.value)}
+              className="text-sm!"
+            />
+            <Button
+              icon={<LuSend className="w-4 h-4" />}
+              type="primary"
+              className="w-9! h-9! min-w-9! rounded-lg!"
+            />
+          </div>
         </div>
       </div>
 
