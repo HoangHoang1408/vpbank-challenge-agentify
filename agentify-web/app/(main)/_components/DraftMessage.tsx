@@ -1,6 +1,7 @@
 'use client';
 
-import { IGenEmail } from '@/types';
+import { SEGMENT_COLORS } from '@/constants';
+import { IGenEmail, Segment } from '@/types';
 import {
   Alert,
   Avatar,
@@ -90,11 +91,7 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
             </Tag>
             <Tag
               color={
-                event?.customer?.segment.toLowerCase().includes('prime')
-                  ? 'gold'
-                  : event?.customer?.segment.toLowerCase().includes('diamond')
-                    ? 'cyan'
-                    : 'purple'
+                SEGMENT_COLORS[event?.customer?.segment as Segment] || 'default'
               }
               className="rounded-xl! text-xs! font-medium"
             >

@@ -1,5 +1,6 @@
 'use client';
 
+import { SEGMENT_COLORS } from '@/constants';
 import { IGenEmail } from '@/types';
 import { Avatar, Button, Card, Tag, Typography } from 'antd';
 import { FC } from 'react';
@@ -31,13 +32,7 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
                 {event.customer.name}
               </Typography.Title>
               <Tag
-                color={
-                  event.customer.segment.toLowerCase().includes('prime')
-                    ? 'gold'
-                    : event.customer.segment.toLowerCase().includes('diamond')
-                      ? 'cyan'
-                      : 'purple'
-                }
+                color={SEGMENT_COLORS[event.customer.segment] || 'default'}
                 className="rounded-xl! text-xs! font-medium"
               >
                 {event.customer.segment}
