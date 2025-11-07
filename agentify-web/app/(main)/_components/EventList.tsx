@@ -1,21 +1,10 @@
 'use client';
 
-import { Avatar, Button, Card, Space, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import { IEvent } from '@/types';
+import { Card, Space, Typography } from 'antd';
 import { FC } from 'react';
-import { LuCalendar, LuDot, LuStar } from 'react-icons/lu';
-
-dayjs.extend(relativeTime);
-
-interface IEvent {
-  id: number;
-  customerName: string;
-  customerRank: 'gold' | 'diamond' | 'platinum';
-  eventName: string;
-  lastContact: string;
-  contacted: boolean;
-}
+import { LuStar } from 'react-icons/lu';
+import EventCard from './EventCard';
 
 const mockData: IEvent[] = [
   {
@@ -24,7 +13,7 @@ const mockData: IEvent[] = [
     customerRank: 'diamond',
     eventName: 'Birthday Today',
     lastContact: '2025-10-24',
-    contacted: true,
+    contacted: false,
   },
   {
     id: 2,
@@ -40,7 +29,7 @@ const mockData: IEvent[] = [
     customerRank: 'diamond',
     eventName: 'Quarterly Review Due',
     lastContact: '2025-10-06',
-    contacted: true,
+    contacted: false,
   },
   {
     id: 4,
@@ -48,7 +37,7 @@ const mockData: IEvent[] = [
     customerRank: 'gold',
     eventName: 'No Contact - 45 Days',
     lastContact: '2025-09-22',
-    contacted: true,
+    contacted: false,
   },
 ];
 
@@ -85,56 +74,11 @@ const EventList: FC = () => {
 
       <div className="mt-8">
         <Space direction="vertical" className="w-full" size="middle">
-          {mockData.map((event) => (
-            <Card
-              key={event.id}
-              className="rounded-xl! cursor-pointer hover:shadow-md transition-all duration-300"
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <Avatar size={48} className="bg-[#193876]! font-medium">
-                    {event.customerName.split(' ').map((name) => name[0])}
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Typography.Title level={5} className="mb-0!">
-                        {event.customerName}
-                      </Typography.Title>
-                      <Tag
-                        color={
-                          event.customerRank === 'gold'
-                            ? 'gold'
-                            : event.customerRank === 'diamond'
-                              ? 'cyan'
-                              : 'purple'
-                        }
-                        className="rounded-xl! text-xs! font-medium"
-                      >
-                        {event.customerRank}
-                      </Tag>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="flex items-center gap-2">
-                        <LuCalendar className="text-text-tertiary" />
-                        <Typography.Text type="secondary" className="text-sm!">
-                          {event.eventName}
-                        </Typography.Text>
-                      </div>
-                      <LuDot className="text-text-tertiary mt-1.5" />
-                      <div>
-                        <Typography.Text type="secondary" className="text-sm!">
-                          Last Contact: {dayjs(event.lastContact).fromNow()}
-                        </Typography.Text>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <Button type="primary" size="large">
-                  Draft Message
-                </Button>
-              </div>
-            </Card>
-          ))}
+          {mockData
+            .filter((event) => !event.contacted)
+            .map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
         </Space>
       </div>
     </div>
