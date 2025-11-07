@@ -13,7 +13,7 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   LuCircleCheck,
   LuCopy,
@@ -25,6 +25,11 @@ import {
 
 const MESSAGE_TYPES = ['email', 'message'] as const;
 
+interface FormValues {
+  subject?: string;
+  message: string;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -32,10 +37,25 @@ interface Props {
 }
 
 const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   const [messageType, setMessageType] =
     useState<(typeof MESSAGE_TYPES)[number]>('email');
+
+  useEffect(() => {
+    if (open && event) {
+      if (messageType === 'email') {
+        form.setFieldsValue({
+          subject: event?.subject,
+          message: event?.body,
+        });
+      } else if (messageType === 'message') {
+        form.setFieldsValue({
+          message: event?.message,
+        });
+      }
+    }
+  }, [messageType, event, open, form]);
 
   return (
     <Modal
@@ -132,14 +152,14 @@ const DraftMessage: FC<Props> = ({ event, open, onClose }) => {
 
       <Form form={form} layout="vertical" className="mt-8!">
         {messageType === 'email' && (
-          <Form.Item
+          <Form.Item<FormValues>
             label={<span className="font-semibold">Subject</span>}
             name="subject"
           >
             <Input size="large" placeholder="Enter subject" />
           </Form.Item>
         )}
-        <Form.Item
+        <Form.Item<FormValues>
           label={<span className="font-semibold">Message</span>}
           name="message"
         >
