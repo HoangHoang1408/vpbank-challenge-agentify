@@ -2,9 +2,10 @@
 
 import { IEvent } from '@/types';
 import { Card, Space, Typography } from 'antd';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { LuStar } from 'react-icons/lu';
 import EventCard from './EventCard';
+import EventCardHistory from './EventCardHistory';
 
 const mockData: IEvent[] = [
   {
@@ -22,6 +23,7 @@ const mockData: IEvent[] = [
     eventName: 'Loan Renewal - 7 Days',
     lastContact: '2025-11-04',
     contacted: true,
+    contactedTime: '2025-11-07T01:26:55.000Z',
   },
   {
     id: 3,
@@ -42,6 +44,14 @@ const mockData: IEvent[] = [
 ];
 
 const EventList: FC = () => {
+  const [events, setEvents] = useState<IEvent[]>(mockData);
+  const [historyEvents, setHistoryEvents] = useState<IEvent[]>([]);
+
+  useEffect(() => {
+    setEvents(mockData.filter((event) => !event.contacted));
+    setHistoryEvents(mockData.filter((event) => event.contacted));
+  }, []);
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="flex justify-between">
@@ -74,13 +84,24 @@ const EventList: FC = () => {
 
       <div className="mt-8">
         <Space direction="vertical" className="w-full" size="middle">
-          {mockData
-            .filter((event) => !event.contacted)
-            .map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
+          {events.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
         </Space>
       </div>
+
+      {historyEvents.length > 0 && (
+        <div className="mt-6">
+          <Typography.Title className="text-xl! sm:text-2xl! font-bold! mb-3! sm:mb-4!">
+            History
+          </Typography.Title>
+          <Space direction="vertical" className="w-full" size="middle">
+            {historyEvents.map((event) => (
+              <EventCardHistory key={event.id} event={event} />
+            ))}
+          </Space>
+        </div>
+      )}
     </div>
   );
 };

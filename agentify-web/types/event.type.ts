@@ -5,4 +5,5 @@ export interface IEvent {
   eventName: string;
   lastContact: string;
   contacted: boolean;
+  contactedTime?: string;
 }
