@@ -54,7 +54,7 @@ const mockData: ITodo[] = [
 
 const TodoList: FC = () => {
   return (
-    <div className="py-10">
+    <div className="mb-10">
       <Card
         className="rounded-xl! w-full max-w-5xl mx-auto!"
         variant="borderless"
