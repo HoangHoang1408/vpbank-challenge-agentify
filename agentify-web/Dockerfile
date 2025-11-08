@@ -11,6 +11,11 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN mkdir -p public && \
+    if [ ! "$(ls -A public)" ]; then \
+    touch public/.gitkeep; \
+    fi
+
 RUN yarn build
 
 FROM node:22-alpine AS runner
@@ -28,7 +33,8 @@ RUN apk add --no-cache libc6-compat
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+RUN mkdir -p ./public
+COPY --from=builder --chown=node:node /app/public ./public
 
 USER node
 
