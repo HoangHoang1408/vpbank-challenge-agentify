@@ -1,12 +1,12 @@
-import { Injectable, Param } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FactRmTask, TaskStatus, TaskType } from "src/rm_task/entities/fact_rm_task.entity";
 import { RelationshipManager } from "src/rm/entities/rm.entity";
 import { Customer } from "src/customer/entities/customer.entity";
 import { Repository } from "typeorm";
-import { Tool } from "@rekog/mcp-nest";
+import { type Context, Tool } from "@rekog/mcp-nest";
+import type { Request } from "express";
 import z from "zod";
-import { CreateTaskDto } from "src/rm_task/dto/create-task.dto";
 
 @Injectable()
 export class RmTaskTool {
@@ -20,41 +20,428 @@ export class RmTaskTool {
     ) { }
 
     @Tool({
-        name: "rm_create_task",
-        description: "Tool to create a new Relationship Manager task",
+        name: "find_rm_task",
+        description: "Tool to search for a task for a relationship manager based on specified criteria. Returns task information if found, or a message asking for more specific information if multiple tasks match.",
         parameters: z.object({
-            rmId: z.number({
-                "required_error": "Relationship Manager ID is required",
-                "invalid_type_error": "Relationship Manager ID must be a number",
-                "description": "The ID of the Relationship Manager who is responsible for the task",
-            }),
-            customerId: z.number({
-                "required_error": "Customer ID is required",
-                "invalid_type_error": "Customer ID must be a number",
-                "description": "The ID of the Customer who is the subject of the task",
-            }),
-            taskType: z.nativeEnum(TaskType, {
-                "required_error": "Task type is required",
-                "invalid_type_error": "Task type must be a valid TaskType enum value",
-                "description": "The type of task to be created. Valid values are: " + Object.values(TaskType).join(", "),
-            }),
-            status: z.nativeEnum(TaskStatus, {
-                "required_error": "Task status is required",
-                "invalid_type_error": "Task status must be a valid TaskStatus enum value",
-                "description": "The status of the task to be created. Valid values are: " + Object.values(TaskStatus).join(", "),
-            }),
-            taskDetails: z.string({
-                "required_error": "Task details are required",
-                "invalid_type_error": "Task details must be a string",
-                "description": "The detailed description of the task to be created",
-            }),
-            dueDate: z.string({
-                "required_error": "Due date is required",
-                "description": "The due date for the task to be created in the format YYYY-MM-DD",
-            })
+            customerId: z.optional(z.number({
+                "description": "The unique identifier for a customer. If other customer information is provided, call `find_customer` first to obtain the `customerId`.",
+            })),
+            taskType: z.optional(z.nativeEnum(TaskType, {
+                "description": "The type of task to filter by",
+            })),
+            taskStatus: z.optional(z.nativeEnum(TaskStatus, {
+                "description": "The current status of the task",
+            })),
+            taskDueDateStart: z.optional(z.string({
+                "description": "The start date to filter tasks by due date range in YYYY-MM-DD format",
+            })),
+            taskDueDateEnd: z.optional(z.string({
+                "description": "The end date to filter tasks by due date range in YYYY-MM-DD format",
+            })),
         })
     })
-    async createRmTask({ rmId, customerId, taskType, status, taskDetails, dueDate }: { rmId: number, customerId: number, taskType: TaskType, status: TaskStatus, taskDetails: string, dueDate: Date }) {
-        return "CAN_CALL_TOOL"
+    async findRmTask({
+        customerId,
+        taskType,
+        taskStatus,
+        taskDueDateStart,
+        taskDueDateEnd
+    }: {
+        customerId?: number;
+        taskType?: TaskType;
+        taskStatus?: TaskStatus;
+        taskDueDateStart?: string;
+        taskDueDateEnd?: string;
+    }, context: Context, request: Request) {
+        // Extract relationship manager id from request headers or context
+        // For now, we'll assume rmId is passed in the request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                task_info: {},
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+            };
+        }
+
+        // Build query builder with optimized select
+        const queryBuilder = this.taskRepository
+            .createQueryBuilder('task')
+            .select([
+                'task.id',
+                'task.customerId',
+                'task.taskType',
+                'task.status',
+                'task.taskDetails',
+                'task.dueDate'
+            ])
+            .where('task.rmId = :rmId', { rmId: parseInt(rmId) });
+
+        // Track which fields were used in search for later analysis
+        const usedFields = new Set<string>();
+
+        // Build WHERE conditions using parameterized queries
+        if (customerId !== undefined) {
+            if (isNaN(customerId)) {
+                return {
+                    task_info: {},
+                    message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it."
+                };
+            }
+            queryBuilder.andWhere('task.customerId = :customerId', { customerId });
+            usedFields.add('customerId');
+        }
+
+        if (taskType) {
+            queryBuilder.andWhere('task.taskType = :taskType', { taskType });
+            usedFields.add('taskType');
+        }
+
+        if (taskStatus) {
+            queryBuilder.andWhere('task.status = :taskStatus', { taskStatus });
+            usedFields.add('status');
+        }
+
+        if (taskDueDateStart || taskDueDateEnd) {
+            if (taskDueDateStart && taskDueDateEnd) {
+                // Validate date format
+                const startDate = new Date(taskDueDateStart);
+                const endDate = new Date(taskDueDateEnd);
+
+                if (isNaN(startDate.getTime())) {
+                    return {
+                        task_info: {},
+                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                    };
+                }
+
+                if (isNaN(endDate.getTime())) {
+                    return {
+                        task_info: {},
+                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                    };
+                }
+
+                if (startDate > endDate) {
+                    return {
+                        task_info: {},
+                        message: "Start date cannot be greater than end date. Please provide a valid date range."
+                    };
+                }
+
+                queryBuilder.andWhere('task.dueDate BETWEEN :startDate AND :endDate', {
+                    startDate: taskDueDateStart,
+                    endDate: taskDueDateEnd
+                });
+            } else if (taskDueDateStart) {
+                const startDate = new Date(taskDueDateStart);
+                if (isNaN(startDate.getTime())) {
+                    return {
+                        task_info: {},
+                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                    };
+                }
+                queryBuilder.andWhere('task.dueDate >= :startDate', { startDate: taskDueDateStart });
+            } else if (taskDueDateEnd) {
+                const endDate = new Date(taskDueDateEnd);
+                if (isNaN(endDate.getTime())) {
+                    return {
+                        task_info: {},
+                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                    };
+                }
+                queryBuilder.andWhere('task.dueDate <= :endDate', { endDate: taskDueDateEnd });
+            }
+            usedFields.add('dueDate');
+        }
+
+        try {
+            // Execute the optimized query
+            const tasks = await queryBuilder.getMany();
+
+            // Check the number of results
+            if (!tasks || tasks.length === 0) {
+                return {
+                    task_info: {},
+                    message: "No task found matching the provided criteria. Please ask back for different information."
+                };
+            }
+
+            if (tasks.length > 1) {
+                // Find the column with the most unique values
+                const cols = ["customerId", "taskType", "status", "taskDetails", "dueDate"];
+                let maxValueCount: [string, number] = ["taskType", 0];
+
+                for (const col of cols) {
+                    const uniqueValues = new Set(
+                        tasks.map(t => {
+                            const val = (t as any)[col];
+                            return val instanceof Date ? val.toISOString() : (val ?? null);
+                        })
+                    );
+                    const count = uniqueValues.size;
+                    if (count > maxValueCount[1]) {
+                        maxValueCount = [col, count];
+                    }
+                }
+
+                const fieldName = maxValueCount[0] === "customerId" ? "customer information" : maxValueCount[0];
+
+                return {
+                    task_info: {},
+                    message: `(${tasks.length}) tasks found matching the criteria. Please ask back for ${fieldName} to identify a single task.`
+                };
+            }
+
+            // Exactly one task found
+            const task = tasks[0];
+            const taskInfo = {
+                id: task.id,
+                customerId: task.customerId,
+                taskType: task.taskType,
+                taskStatus: task.status,
+                taskDetails: task.taskDetails,
+                dueDate: task.dueDate,
+            };
+
+            return {
+                task_info: taskInfo,
+                message: "Task found successfully."
+            };
+
+        } catch (error) {
+            return {
+                task_info: {},
+                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`
+            };
+        }
+    }
+
+    @Tool({
+        name: "create_rm_task",
+        description: "Tool to create a new task for a relationship manager. This function schedules a new task, linking it to a specific customer and setting a due date.",
+        parameters: z.object({
+            customerId: z.number({
+                "description": "The unique identifier for the customer the task is for. If the user provides a name or other details, use the `find_customer` tool first.",
+            }),
+            taskType: z.nativeEnum(TaskType, {
+                "description": "The type of task to create",
+            }),
+            taskStatus: z.nativeEnum(TaskStatus, {
+                "description": "The initial status of the task",
+            }),
+            taskDueDate: z.string({
+                "description": "The specific due date for the task in YYYY-MM-DD format",
+            }),
+            taskDetails: z.string({
+                "description": "Detailed description of the task",
+            }),
+        })
+    })
+    async createRmTask({
+        customerId,
+        taskType,
+        taskStatus,
+        taskDueDate,
+        taskDetails
+    }: {
+        customerId: number;
+        taskType: TaskType;
+        taskStatus: TaskStatus;
+        taskDueDate: string;
+        taskDetails: string;
+    }, context: Context, request: Request) {
+        // Extract relationship manager id from request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+            };
+        }
+
+        // Validate customer ID
+        if (isNaN(customerId)) {
+            return {
+                message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it."
+            };
+        }
+
+        // Validate due date
+        const dueDate = new Date(taskDueDate);
+        if (isNaN(dueDate.getTime())) {
+            return {
+                message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format."
+            };
+        }
+
+        return {
+            message: "All input is now valid. Ask for confirmation",
+        };
+    }
+
+    @Tool({
+        name: "update_rm_task",
+        description: "Tool to update specific fields of an existing task for the relationship manager. This function modifies one or more fields of a specific task identified by its unique ID.",
+        parameters: z.object({
+            rmTaskId: z.number({
+                "description": "The unique identifier of the task to update. If the user refers to a task by attributes, call `find_rm_task` first to get the `rmTaskId`.",
+            }),
+            updateTaskStatus: z.optional(z.nativeEnum(TaskStatus, {
+                "description": "The new status of the task.",
+            })),
+            updateTaskDueDate: z.optional(z.string({
+                "description": "The new due date of the task in YYYY-MM-DD format.",
+            })),
+            updateTaskDetails: z.optional(z.string({
+                "description": "The new details of the task.",
+            })),
+        })
+    })
+    async updateRmTask({
+        rmTaskId,
+        updateTaskStatus,
+        updateTaskDueDate,
+        updateTaskDetails
+    }: {
+        rmTaskId: number;
+        updateTaskStatus?: TaskStatus;
+        updateTaskDueDate?: string;
+        updateTaskDetails?: string;
+    }, context: Context, request: Request) {
+        // Extract relationship manager id from request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+            };
+        }
+
+        // Validate task ID
+        if (isNaN(rmTaskId)) {
+            return {
+                message: "Invalid task ID. Task ID must be an integer. Please provide a valid task ID or ask back for task information and use the `find_rm_task` tool to obtain it."
+            };
+        }
+
+        // Check if at least one field to update is provided
+        if (!updateTaskStatus && !updateTaskDueDate && !updateTaskDetails) {
+            return {
+                message: "No fields to update. Please provide a field to update."
+            };
+        }
+
+        // Validate due date if provided
+        if (updateTaskDueDate) {
+            const dueDate = new Date(updateTaskDueDate);
+            if (isNaN(dueDate.getTime())) {
+                return {
+                    message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format."
+                };
+            }
+        }
+
+        return {
+            message: "All input is now valid. Ask for confirmation",
+        };
+    }
+
+    @Tool({
+        name: "report_performance",
+        description: "Tool to retrieve a performance report for the relationship manager for a given period. This function calculates and returns key performance indicators (KPIs) over a specified date range.",
+        parameters: z.object({
+            startDate: z.optional(z.string({
+                "description": "The start date of the performance report in YYYY-MM-DD format.",
+            })),
+            endDate: z.optional(z.string({
+                "description": "The end date of the performance report in YYYY-MM-DD format.",
+            })),
+        })
+    })
+    async reportPerformance({
+        startDate,
+        endDate
+    }: {
+        startDate?: string;
+        endDate?: string;
+    }, context: Context, request: Request) {
+        // Extract relationship manager id from request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                task_info: {},
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+            };
+        }
+
+        // Build query builder
+        const queryBuilder = this.taskRepository
+            .createQueryBuilder('task')
+            .select('task.status', 'status')
+            .addSelect('COUNT(*)', 'task_count')
+            .where('task.rmId = :rmId', { rmId: parseInt(rmId) })
+            .groupBy('task.status')
+            .orderBy('task_count', 'DESC');
+
+        // Add date filters if provided
+        if (startDate) {
+            const start = new Date(startDate);
+            if (isNaN(start.getTime())) {
+                return {
+                    task_info: {},
+                    message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                };
+            }
+            queryBuilder.andWhere('task.createdAt >= :startDate', { startDate });
+        }
+
+        if (endDate) {
+            const end = new Date(endDate);
+            if (isNaN(end.getTime())) {
+                return {
+                    task_info: {},
+                    message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                };
+            }
+            queryBuilder.andWhere('task.createdAt <= :endDate', { endDate });
+        }
+
+        try {
+            // Execute the query
+            const results = await queryBuilder.getRawMany();
+
+            // Check if any tasks found
+            if (!results || results.length === 0) {
+                return {
+                    task_info: {},
+                    message: "No task found during the period. Please ask back for a different period."
+                };
+            }
+
+            // Build performance report
+            const performanceReport: Record<string, number> = {};
+            let totalTasks = 0;
+
+            for (const result of results) {
+                const count = parseInt(result.task_count);
+                performanceReport[`${result.status.toLowerCase()} tasks`] = count;
+                totalTasks += count;
+            }
+
+            performanceReport["total tasks"] = totalTasks;
+
+            return {
+                message: "Performance report retrieved successfully.",
+                performance_report: performanceReport
+            };
+
+        } catch (error) {
+            return {
+                task_info: {},
+                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`
+            };
+        }
     }
 }
