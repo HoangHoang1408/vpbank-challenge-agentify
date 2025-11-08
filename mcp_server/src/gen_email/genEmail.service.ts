@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, LessThan } from "typeorm";
 import OpenAI from 'openai';
@@ -7,6 +7,8 @@ import { Customer } from "../customer/entities/customer.entity";
 import { RelationshipManager } from "../rm/entities/rm.entity";
 import { GeneratedEmail, EmailType, EmailStatus } from "./entities/generated-email.entity";
 import { CreateGeneratedEmailDto } from "./dto";
+import { FactRmTaskService } from "../rm_task/rm_task.service";
+import { TaskType, TaskStatus } from "../rm_task/entities/fact_rm_task.entity";
 
 interface GeneratedEmailContent {
     subject: string;
@@ -16,6 +18,8 @@ interface GeneratedEmailContent {
 
 @Injectable()
 export class GenEmailService {
+    private readonly logger = new Logger(GenEmailService.name);
+
     constructor(
         private readonly configService: ConfigService,
         @InjectRepository(GeneratedEmail)
@@ -24,6 +28,7 @@ export class GenEmailService {
         private readonly customerRepository: Repository<Customer>,
         @InjectRepository(RelationshipManager)
         private readonly rmRepository: Repository<RelationshipManager>,
+        private readonly taskService: FactRmTaskService,
     ) { }
 
     async generateResponse(prompt: string, model: string = 'gpt-4o') {
@@ -312,8 +317,94 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
      */
     async updateEmailStatus(id: number, status: EmailStatus): Promise<GeneratedEmail> {
         const email = await this.getEmailById(id);
+        const previousStatus = email.status;
         email.status = status;
-        return await this.emailRepository.save(email);
+
+        const updatedEmail = await this.emailRepository.save(email);
+
+        // If email status changed to SENT, create or update the corresponding task
+        if (status === EmailStatus.SENT && previousStatus !== EmailStatus.SENT) {
+            await this.createOrUpdateTaskForEmail(updatedEmail);
+        }
+
+        return updatedEmail;
+    }
+
+    /**
+     * Create or update a task when an email is sent
+     */
+    private async createOrUpdateTaskForEmail(email: GeneratedEmail): Promise<void> {
+        try {
+            // Generate a unique task ID based on email ID and type
+            const taskId = `EMAIL-${email.emailType}-${email.id}`;
+
+            // Determine task details based on email type
+            const taskDetails = this.generateTaskDetails(email);
+
+            // Calculate due date (7 days from now for follow-up)
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 7);
+
+            // Check if task already exists
+            try {
+                const existingTask = await this.taskService.findByTaskId(taskId);
+
+                // Update existing task
+                await this.taskService.update(existingTask.id, {
+                    taskDetails,
+                    status: TaskStatus.IN_PROGRESS,
+                    dueDate,
+                });
+
+                this.logger.log(`Updated task ${taskId} for sent email ${email.id}`);
+            } catch (error) {
+                // Task doesn't exist, create new one
+                await this.taskService.create({
+                    taskId,
+                    rmId: email.rmId,
+                    customerId: email.customerId,
+                    taskType: TaskType.EMAIL,
+                    status: TaskStatus.IN_PROGRESS,
+                    taskDetails,
+                    dueDate,
+                });
+
+                this.logger.log(`Created task ${taskId} for sent email ${email.id}`);
+            }
+        } catch (error) {
+            this.logger.error(`Failed to create/update task for email ${email.id}:`, error);
+            // Don't throw error to prevent email status update from failing
+            // The email was sent successfully, task creation is secondary
+        }
+    }
+
+    /**
+     * Generate task details based on email type and content
+     */
+    private generateTaskDetails(email: GeneratedEmail): string {
+        const emailTypeLabels = {
+            [EmailType.BIRTHDAY]: 'Chúc mừng sinh nhật',
+            [EmailType.CARD_RENEWAL]: 'Nhắc nhở gia hạn thẻ',
+            [EmailType.SEGMENT_MILESTONE]: 'Chúc mừng cột mốc quan trọng',
+        };
+
+        const emailTypeLabel = emailTypeLabels[email.emailType] || email.emailType;
+
+        return `Email ${emailTypeLabel} đã được gửi cho khách hàng. Chủ đề: "${email.subject}". Theo dõi phản hồi và tương tác của khách hàng.`;
+    }
+
+    /**
+     * Manually create or update task for a sent email
+     * Useful for retroactively creating tasks for emails that were sent before the integration
+     */
+    async createTaskForEmail(emailId: number): Promise<void> {
+        const email = await this.getEmailById(emailId);
+
+        if (email.status !== EmailStatus.SENT) {
+            throw new BadRequestException('Can only create tasks for emails with SENT status');
+        }
+
+        await this.createOrUpdateTaskForEmail(email);
     }
 
     /**
