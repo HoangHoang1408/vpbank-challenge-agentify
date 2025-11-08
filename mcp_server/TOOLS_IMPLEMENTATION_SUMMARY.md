@@ -132,7 +132,6 @@ All Python tools have been successfully converted to TypeScript using NestJS, Ty
 Updated `fact_rm_task.entity.ts` to include all status values:
 ```typescript
 export enum TaskStatus {
-    PENDING = "PENDING",
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",
     IN_PROGRESS = "IN_PROGRESS"

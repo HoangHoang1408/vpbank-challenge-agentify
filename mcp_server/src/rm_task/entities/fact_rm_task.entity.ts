@@ -13,7 +13,8 @@ export enum TaskType {
 
 export enum TaskStatus {
     COMPLETED = "COMPLETED",
-    IN_PROGRESS = "IN_PROGRESS"
+    IN_PROGRESS = "IN_PROGRESS",
+    CANCELLED = "CANCELLED"
 }
 
 @Entity()

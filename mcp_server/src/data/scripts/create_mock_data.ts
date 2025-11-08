@@ -73,4 +73,3 @@ async function createMockData() {
 
 // Run the script
 createMockData();
-

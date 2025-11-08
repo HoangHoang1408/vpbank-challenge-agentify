@@ -230,8 +230,9 @@ export class FactRmTaskService {
      */
     private validateStatusTransition(currentStatus: TaskStatus, newStatus: TaskStatus): void {
         const validTransitions: Record<TaskStatus, TaskStatus[]> = {
-            [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED],
-            [TaskStatus.COMPLETED]: [], // Cannot transition from completed
+            [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED, TaskStatus.CANCELLED],
+            [TaskStatus.COMPLETED]: [],
+            [TaskStatus.CANCELLED]: [TaskStatus.IN_PROGRESS],
         };
 
         if (!validTransitions[currentStatus].includes(newStatus)) {
