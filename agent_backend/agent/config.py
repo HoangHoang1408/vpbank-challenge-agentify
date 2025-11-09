@@ -1,7 +1,5 @@
 """Configuration management for the agent backend."""
 from pydantic_settings import BaseSettings
-from typing import Optional
-
 
 class Settings(BaseSettings):
     """Application settings."""
@@ -39,10 +37,10 @@ try:
             raise ValueError(
                 "OPENAI_API_KEY is required. Please set it in your .env file or environment variables."
             )
-except ValueError as e:
+except ValueError:
     # Re-raise validation errors
     raise
-except Exception as e:
+except Exception:
     # For other errors, create a dummy settings object if in test mode
     import os
     if os.getenv("SKIP_VALIDATION") == "true":

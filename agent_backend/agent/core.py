@@ -11,6 +11,7 @@ from langchain_core.messages import (
     AIMessageChunk,
     AnyMessage,
 )
+from langchain_core.runnables import RunnablePassthrough
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
@@ -181,6 +182,8 @@ class AgentCore:
         self.graph = None
         self.checkpointer = MemorySaver()
         self.current_rm_id: Optional[int] = None
+        self.last_state: Optional[MessagesState] = None
+
         
     async def initialize(self, rm_id: Optional[int] = None):
         """Initialize tools and build the graph."""
@@ -210,11 +213,12 @@ class AgentCore:
         # Build the graph
         builder = StateGraph(MessagesState)
         
-        # Create the assistant node
-        def rm_assistant(state: MessagesState):
-            messages = get_messages(state)
-            response = self.llm.bind_tools(self.tools).invoke(messages)
-            return {"messages": postprocess_message(response)}
+        # Create the assistant node using RunnablePassthrough pattern
+        rm_assistant = RunnablePassthrough.assign(
+            messages=get_messages
+            | self.llm.bind_tools(self.tools)
+            | postprocess_message
+        )
         
         builder.add_node("rm_assistant", rm_assistant)
         builder.add_node("tools", ToolNode(self.tools))
@@ -270,14 +274,16 @@ class AgentCore:
         
         if interrupt_message is not None:
             # Resume with user's response
-            result = self.graph.invoke(
+            result = await self.graph.ainvoke(
                 Command(resume=message.strip()),
                 config=config,
             )
         else:
             # Normal invocation
             input_state = {"messages": [HumanMessage(content=message)]}
-            result = self.graph.invoke(input_state, config=config)
+            result = await self.graph.ainvoke(input_state, config=config)
+
+        self.last_state = result
         
         # Check if graph interrupted
         if "__interrupt__" in result:
@@ -397,6 +403,7 @@ class AgentCore:
                 "interrupted": False,
             }
     
+
     def check_for_interrupt(self, thread_id: str) -> Optional[str]:
         """
         Check if the graph is waiting for an interrupt.
@@ -407,8 +414,7 @@ class AgentCore:
         Returns:
             Interrupt message if present, None otherwise
         """
-        config = {"configurable": {"thread_id": thread_id}}
-        state = self.checkpointer.get(config)
+        state = self.last_state
         if state and "__interrupt__" in state:
             interrupts = state["__interrupt__"]
             if interrupts and len(interrupts) > 0:
@@ -475,7 +481,7 @@ class AgentCore:
                 return {"messages": [AIMessage(content="Tool run successfully!")]}
             
             # Execute the actual tool via MCP
-            result = await internal_tool.coroutine(**mcp_args)
+            result = await internal_tool.ainvoke(mcp_args)
             
             # Return success message
             success_message = f"Task executed successfully! {result.get('message', '') if isinstance(result, dict) else str(result)}"
