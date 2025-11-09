@@ -10,6 +10,7 @@ export const useGetTasksQuery = (params: IGetTaskParams) =>
       const response = await API.get<ITask[]>('tasks', { params });
       return response.data;
     },
+    refetchInterval: 5000, //
   });
 
 export const useMarkTaskAsCompletedMutation = () =>
