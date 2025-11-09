@@ -1,12 +1,85 @@
 import { cn } from '@/lib/utils';
-import { Button, Input, Layout, Typography } from 'antd';
-import { FC, useState } from 'react';
+import { Button, Input, Layout, Spin, Typography, message as antdMessage } from 'antd';
+import { FC, useEffect, useRef, useState } from 'react';
 import { LuSend, LuSparkles, LuX } from 'react-icons/lu';
 import ChatMessage from './ChatMessage';
+import { IChatMessage } from '@/types';
+import { useSendChatMessageMutation } from '@/lib/api';
+
+const WELCOME_MESSAGE: IChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: `Hi! I'm your AI Chief of Staff. I can help you with:
+
+• Strategic Prioritization - Find top client opportunities
+• Next Best Action - Get personalized recommendations
+• Performance Reporting - Check your metrics instantly
+• CRM Data Entry - Log meetings naturally
+
+How can I assist you today?`,
+  timestamp: new Date(),
+};
 
 const AgentChat: FC = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [messagesInput, setMessagesInput] = useState<string>('');
+  const [messages, setMessages] = useState<IChatMessage[]>([WELCOME_MESSAGE]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const sendMessageMutation = useSendChatMessageMutation();
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!messagesInput.trim() || sendMessageMutation.isPending) {
+      return;
+    }
+
+    const userMessage: IChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: messagesInput.trim(),
+      timestamp: new Date(),
+    };
+
+    // Add user message to chat immediately
+    setMessages((prev) => [...prev, userMessage]);
+    setMessagesInput('');
+
+    try {
+      // Send message to API
+      const response = await sendMessageMutation.mutateAsync({
+        message: userMessage.content,
+        rm_id: 1,
+      });
+
+      // Add assistant response to chat
+      const assistantMessage: IChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: response.message,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      antdMessage.error('Failed to send message. Please try again.');
+
+      // Optionally remove the user message on error
+      setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <Layout.Sider
@@ -48,7 +121,16 @@ const AgentChat: FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <ChatMessage />
+          <ChatMessage messages={messages} />
+          {sendMessageMutation.isPending && (
+            <div className="flex justify-start mt-4">
+              <div className="max-w-[85%] rounded-lg bg-[#eff2f5] p-3">
+                <Spin size="small" />
+                <span className="ml-2 text-gray-600">Thinking...</span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="border-t border-border p-4">
@@ -58,11 +140,16 @@ const AgentChat: FC = () => {
               autoSize={{ minRows: 3, maxRows: 6 }}
               value={messagesInput}
               onChange={(e) => setMessagesInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={sendMessageMutation.isPending}
               className="text-sm!"
             />
             <Button
               icon={<LuSend className="w-4 h-4" />}
               type="primary"
+              onClick={handleSendMessage}
+              disabled={!messagesInput.trim() || sendMessageMutation.isPending}
+              loading={sendMessageMutation.isPending}
               className="w-9! h-9! min-w-9! rounded-lg!"
             />
           </div>
