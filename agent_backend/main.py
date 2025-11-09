@@ -189,6 +189,36 @@ async def check_interrupt(rm_id: int):
     }
 
 
+@app.delete("/chat/history/{rm_id}")
+async def clear_chat_history(rm_id: int):
+    """
+    Clear chat history for a relationship manager.
+    
+    Args:
+        rm_id: Relationship Manager ID
+        
+    Returns:
+        Dictionary with success status and message.
+    """
+    if agent is None:
+        raise HTTPException(status_code=503, detail="Agent not initialized")
+    
+    try:
+        # Auto-generate thread_id from rm_id
+        thread_id = get_thread_id_from_rm_id(rm_id)
+        
+        # Delete the thread from checkpointer
+        agent.checkpointer.delete_thread(thread_id)
+        
+        return {
+            "success": True,
+            "message": f"Chat history cleared for RM ID {rm_id}",
+            "thread_id": thread_id,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error clearing chat history: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
