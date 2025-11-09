@@ -237,7 +237,8 @@ export class FactRmTaskService {
 
         if (!validTransitions[currentStatus].includes(newStatus)) {
             throw new BadRequestException(
-                `Invalid status transition from ${currentStatus} to ${newStatus}`
+                // `Invalid status transition from ${currentStatus} to ${newStatus}`
+                `You cannot change the status from ${currentStatus} to ${newStatus}`
             );
         }
     }

@@ -129,5 +129,80 @@ export class EmailSchedulerService {
 
         return { cleaned, generated, errors };
     }
+
+    /**
+     * Trigger email generation for a specific Relationship Manager
+     */
+    async triggerGenerationForRm(rmId: number): Promise<{
+        generated: number;
+        errors: number;
+        details: Array<{ customerId: number; emailType: string; success: boolean; error?: string }>;
+    }> {
+        this.logger.log(`Triggering email generation for RM ${rmId}...`);
+
+        // Get eligible customers for this RM
+        const eligibleCustomers = await this.emailRulesService.getEligibleCustomersByRm(rmId);
+
+        if (eligibleCustomers.length === 0) {
+            this.logger.log(`No eligible customers found for RM ${rmId}`);
+            return { generated: 0, errors: 0, details: [] };
+        }
+
+        this.logger.log(`Found ${eligibleCustomers.length} eligible customers for RM ${rmId}`);
+
+        let generated = 0;
+        let errors = 0;
+        const details: Array<{ customerId: number; emailType: string; success: boolean; error?: string }> = [];
+
+        for (const { customer, emailType, metadata } of eligibleCustomers) {
+            try {
+                const emailContent = await this.genEmailService.generatePersonalizedEmail(
+                    customer.id,
+                    customer.rmId,
+                    emailType,
+                    metadata
+                );
+
+                await this.genEmailService.createGeneratedEmail({
+                    rmId: customer.rmId,
+                    customerId: customer.id,
+                    emailType,
+                    subject: emailContent.subject,
+                    body: emailContent.body,
+                    message: emailContent.message,
+                    metadata,
+                });
+
+                generated++;
+                details.push({
+                    customerId: customer.id,
+                    emailType,
+                    success: true,
+                });
+
+                this.logger.debug(
+                    `Generated ${emailType} email for customer ${customer.name} (ID: ${customer.id})`
+                );
+            } catch (error) {
+                errors++;
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                details.push({
+                    customerId: customer.id,
+                    emailType,
+                    success: false,
+                    error: errorMessage,
+                });
+                this.logger.error(
+                    `Failed to generate email for customer ${customer.id}: ${errorMessage}`
+                );
+            }
+        }
+
+        this.logger.log(
+            `Email generation for RM ${rmId} completed. Generated: ${generated}, Errors: ${errors}`
+        );
+
+        return { generated, errors, details };
+    }
 }
 

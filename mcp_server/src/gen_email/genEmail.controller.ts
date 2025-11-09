@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from 
 import { GenEmailService } from "./genEmail.service";
 import { EmailSchedulerService } from "./email-scheduler.service";
 import { UpdateEmailStatusDto, FilterEmailDto, RegenerateEmailDto } from "./dto";
-import { EmailStatus } from "./entities/generated-email.entity";
+import { EmailStatus, EmailType } from "./entities/generated-email.entity";
 
 @ApiTags('Generated Emails')
 @Controller('gen-email')
@@ -243,6 +243,109 @@ export class GenEmailController {
     }
 
     /**
+     * POST /gen-email/regenerate-rm/:rmId
+     * Regenerate all emails for a Relationship Manager
+     */
+    @Post('regenerate-rm/:rmId')
+    @ApiOperation({
+        summary: 'Regenerate emails for Relationship Manager',
+        description: 'Regenerate all emails for a specific Relationship Manager. Optionally filter by status and email type. Each email will be regenerated using OpenAI with new content based on the same customer context. Email status will be reset to DRAFT and expiration extended by 7 days.',
+    })
+    @ApiParam({
+        name: 'rmId',
+        type: Number,
+        description: 'The unique ID of the Relationship Manager whose emails to regenerate',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: EmailStatus,
+        description: 'Filter by email status (DRAFT, SENT, or DELETED). If not provided, all emails will be regenerated.',
+        example: EmailStatus.DRAFT,
+    })
+    @ApiQuery({
+        name: 'emailType',
+        required: false,
+        enum: EmailType,
+        description: 'Filter by email type (BIRTHDAY, CARD_RENEWAL, or SEGMENT_MILESTONE). If not provided, all email types will be regenerated.',
+        example: EmailType.BIRTHDAY,
+    })
+    @ApiBody({
+        type: RegenerateEmailDto,
+        required: false,
+        description: 'Optional model configuration for regeneration',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Emails successfully regenerated',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                message: { type: 'string', example: 'Regenerated 5 emails successfully, 0 failed' },
+                data: {
+                    type: 'object',
+                    properties: {
+                        regenerated: { type: 'number', example: 5, description: 'Number of successfully regenerated emails' },
+                        failed: { type: 'number', example: 0, description: 'Number of failed regenerations' },
+                        errors: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    emailId: { type: 'number', example: 10 },
+                                    error: { type: 'string', example: 'Error message' },
+                                },
+                            },
+                            description: 'Array of errors for failed regenerations',
+                        },
+                        emails: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    id: { type: 'number' },
+                                    subject: { type: 'string' },
+                                    body: { type: 'string' },
+                                    message: { type: 'string' },
+                                    status: { type: 'string' },
+                                    expiresAt: { type: 'string', format: 'date-time' },
+                                },
+                            },
+                            description: 'Array of regenerated email objects',
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'Relationship Manager not found',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Invalid parameters',
+    })
+    async regenerateEmailsByRm(
+        @Param('rmId', ParseIntPipe) rmId: number,
+        @Query('status') status?: EmailStatus,
+        @Query('emailType') emailType?: EmailType,
+        @Body() body?: RegenerateEmailDto
+    ) {
+        const model = body?.model || 'gpt-4o';
+        const customPrompt = body?.customPrompt;
+        const result = await this.genEmailService.regenerateEmailsByRm(rmId, status, emailType, model, customPrompt);
+
+        return {
+            success: true,
+            message: `Regenerated ${result.regenerated} emails successfully, ${result.failed} failed`,
+            data: result,
+        };
+    }
+
+    /**
      * PATCH /gen-email/:id/status
      * Update email status (mark as SENT/DELETED)
      */
@@ -392,6 +495,78 @@ export class GenEmailController {
         return {
             success: true,
             message: 'Email generation triggered',
+            data: result,
+        };
+    }
+
+    /**
+     * POST /gen-email/trigger-generation-rm/:rmId
+     * Trigger email generation for a specific Relationship Manager
+     */
+    @Post('trigger-generation-rm/:rmId')
+    @ApiOperation({
+        summary: 'Trigger email generation for specific RM',
+        description: 'Trigger email generation from scratch for all eligible customers of a specific Relationship Manager. This will check the RM\'s customers for eligibility (birthdays, card renewals, milestones) and generate appropriate emails. Useful for on-demand generation for a specific RM.',
+    })
+    @ApiParam({
+        name: 'rmId',
+        type: Number,
+        description: 'The unique ID of the Relationship Manager',
+        example: 1,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Email generation successfully triggered for RM',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                message: { type: 'string', example: 'Generated 5 emails for RM, 0 errors' },
+                data: {
+                    type: 'object',
+                    properties: {
+                        generated: {
+                            type: 'number',
+                            example: 5,
+                            description: 'Number of emails successfully generated',
+                        },
+                        errors: {
+                            type: 'number',
+                            example: 0,
+                            description: 'Number of errors encountered during generation',
+                        },
+                        details: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    customerId: { type: 'number', example: 10 },
+                                    emailType: { type: 'string', example: 'BIRTHDAY' },
+                                    success: { type: 'boolean', example: true },
+                                    error: { type: 'string', example: 'Error message (only present if success is false)' },
+                                },
+                            },
+                            description: 'Detailed results for each customer',
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'No eligible customers found for this RM',
+    })
+    @ApiResponse({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        description: 'Error during email generation process',
+    })
+    async triggerGenerationForRm(@Param('rmId', ParseIntPipe) rmId: number) {
+        const result = await this.emailSchedulerService.triggerGenerationForRm(rmId);
+
+        return {
+            success: true,
+            message: `Generated ${result.generated} emails for RM, ${result.errors} errors`,
             data: result,
         };
     }

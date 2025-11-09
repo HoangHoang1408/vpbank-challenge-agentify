@@ -196,6 +196,55 @@ export class EmailRulesService {
     }
 
     /**
+     * Get eligible customers for a specific Relationship Manager
+     */
+    async getEligibleCustomersByRm(rmId: number): Promise<EligibleCustomer[]> {
+        const allCustomers = await this.customerRepository.find({
+            where: { isActive: true, rmId },
+            relations: ['relationshipManager', 'cards'],
+        });
+
+        const eligible: EligibleCustomer[] = [];
+        const today = new Date();
+
+        for (const customer of allCustomers) {
+            // Check birthday rule
+            if (this.isBirthday(customer.dob, today)) {
+                eligible.push({
+                    customer,
+                    emailType: EmailType.BIRTHDAY,
+                    metadata: {
+                        birthdayDate: customer.dob,
+                        age: this.calculateAge(customer.dob, today),
+                    },
+                });
+            }
+
+            // Check card renewal rule
+            const cardRenewalInfo = this.checkCardRenewal(customer, today);
+            if (cardRenewalInfo) {
+                eligible.push({
+                    customer,
+                    emailType: EmailType.CARD_RENEWAL,
+                    metadata: cardRenewalInfo,
+                });
+            }
+
+            // Check segment milestone rule
+            const milestoneInfo = this.checkSegmentMilestone(customer, today);
+            if (milestoneInfo) {
+                eligible.push({
+                    customer,
+                    emailType: EmailType.SEGMENT_MILESTONE,
+                    metadata: milestoneInfo,
+                });
+            }
+        }
+
+        return eligible;
+    }
+
+    /**
      * Check if a specific customer is eligible for a specific email type
      */
     async isCustomerEligible(customerId: number, emailType: EmailType): Promise<boolean> {

@@ -337,6 +337,85 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
     }
 
     /**
+     * Regenerate all emails for a Relationship Manager
+     */
+    async regenerateEmailsByRm(
+        rmId: number,
+        status?: EmailStatus,
+        emailType?: EmailType,
+        model: string = 'gpt-4o',
+        customPrompt?: string
+    ): Promise<{
+        regenerated: number;
+        failed: number;
+        errors: Array<{ emailId: number; error: string }>;
+        emails: GeneratedEmail[];
+    }> {
+        // Validate RM exists
+        const rm = await this.rmRepository.findOne({
+            where: { id: rmId },
+        });
+
+        if (!rm) {
+            throw new NotFoundException(`Relationship Manager with ID ${rmId} not found`);
+        }
+
+        // Build query with filters
+        const query: any = { rmId };
+        if (status) {
+            query.status = status;
+        }
+        if (emailType) {
+            query.emailType = emailType;
+        }
+
+        // Fetch emails
+        const emails = await this.emailRepository.find({
+            where: query,
+            relations: ['customer', 'relationshipManager'],
+            order: { generatedAt: 'DESC' },
+        });
+
+        if (emails.length === 0) {
+            return {
+                regenerated: 0,
+                failed: 0,
+                errors: [],
+                emails: [],
+            };
+        }
+
+        // Regenerate each email
+        const regeneratedEmails: GeneratedEmail[] = [];
+        const errors: Array<{ emailId: number; error: string }> = [];
+        let regeneratedCount = 0;
+        let failedCount = 0;
+
+        for (const email of emails) {
+            try {
+                const regeneratedEmail = await this.regenerateEmail(email.id, model, customPrompt);
+                regeneratedEmails.push(regeneratedEmail);
+                regeneratedCount++;
+            } catch (error) {
+                failedCount++;
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                errors.push({
+                    emailId: email.id,
+                    error: errorMessage,
+                });
+                this.logger.error(`Failed to regenerate email ${email.id} for RM ${rmId}:`, errorMessage);
+            }
+        }
+
+        return {
+            regenerated: regeneratedCount,
+            failed: failedCount,
+            errors,
+            emails: regeneratedEmails,
+        };
+    }
+
+    /**
      * Update email status
      */
     async updateEmailStatus(id: number, status: EmailStatus): Promise<GeneratedEmail> {
