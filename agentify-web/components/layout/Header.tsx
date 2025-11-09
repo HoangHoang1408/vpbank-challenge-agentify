@@ -2,12 +2,10 @@
 
 import { Button, Layout, Typography } from 'antd';
 import { FC, useState } from 'react';
-import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { LuSignature } from 'react-icons/lu';
-import { EmailSignatureSetting, ToneSetting } from '../setting';
+import { EmailSignatureSetting } from '../setting';
 
 const Header: FC = () => {
-  const [openToneSetting, setOpenToneSetting] = useState(false);
   const [openEmailSignatureSetting, setOpenEmailSignatureSetting] =
     useState(false);
 
@@ -22,32 +20,22 @@ const Header: FC = () => {
         </Typography.Title>
 
         <div className="flex justify-center items-center gap-2">
-          <Button
-            icon={<LuSignature />}
-            color="default"
-            variant="outlined"
-            onClick={() => setOpenEmailSignatureSetting(true)}
-          >
-            Email Signature
-          </Button>
-          <Button
-            icon={<HiOutlineCog6Tooth />}
-            color="default"
-            variant="outlined"
-            onClick={() => setOpenToneSetting(true)}
-          >
-            Tone
-          </Button>
+          <div className="flex justify-center items-center gap-2">
+            <Button
+              icon={<LuSignature />}
+              color="default"
+              variant="outlined"
+              onClick={() => setOpenEmailSignatureSetting(true)}
+            >
+              Email Signature
+            </Button>
+          </div>
         </div>
       </div>
 
       <EmailSignatureSetting
         open={openEmailSignatureSetting}
         onClose={() => setOpenEmailSignatureSetting(false)}
-      />
-      <ToneSetting
-        open={openToneSetting}
-        onClose={() => setOpenToneSetting(false)}
       />
     </Layout.Header>
   );
