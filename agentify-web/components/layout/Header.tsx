@@ -10,14 +10,16 @@ import {
   Space,
   Typography,
 } from 'antd';
-import { FC, useState } from 'react';
-import { LuSignature } from 'react-icons/lu';
-import { EmailSignatureSetting } from '../setting';
 import dayjs from 'dayjs';
+import { FC, useState } from 'react';
+import { HiOutlineCog6Tooth } from 'react-icons/hi2';
+import { LuSignature } from 'react-icons/lu';
+import { EmailSignatureSetting, ToneSetting } from '../setting';
 
 const Header: FC = () => {
   const { data: rmInfo } = useGetRMByIdQuery(1);
 
+  const [openToneSetting, setOpenToneSetting] = useState(false);
   const [openEmailSignatureSetting, setOpenEmailSignatureSetting] =
     useState(false);
 
@@ -40,6 +42,14 @@ const Header: FC = () => {
               onClick={() => setOpenEmailSignatureSetting(true)}
             >
               Email Signature
+            </Button>
+            <Button
+              icon={<HiOutlineCog6Tooth />}
+              color="default"
+              variant="outlined"
+              onClick={() => setOpenToneSetting(true)}
+            >
+              Tone
             </Button>
           </div>
 
@@ -145,6 +155,10 @@ const Header: FC = () => {
       <EmailSignatureSetting
         open={openEmailSignatureSetting}
         onClose={() => setOpenEmailSignatureSetting(false)}
+      />
+      <ToneSetting
+        open={openToneSetting}
+        onClose={() => setOpenToneSetting(false)}
       />
     </Layout.Header>
   );

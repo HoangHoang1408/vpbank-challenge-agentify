@@ -28,11 +28,11 @@ const EmailSignatureSetting: FC<Props> = ({ open, onClose }) => {
     [emailSignatureData],
   );
 
-  const [signatureValue, setSignatureValue] = useState(emailSignature || '');
+  const [signatureValue, setSignatureValue] = useState(emailSignature);
 
   useEffect(() => {
     if (emailSignature && emailSignature !== signatureValue) {
-      setSignatureValue(emailSignature || '');
+      setSignatureValue(emailSignature);
     }
   }, [emailSignature]);
 
@@ -53,7 +53,7 @@ const EmailSignatureSetting: FC<Props> = ({ open, onClose }) => {
   };
 
   const handleCancel = () => {
-    setSignatureValue(emailSignature || '');
+    setSignatureValue(emailSignature);
     onClose();
   };
 
