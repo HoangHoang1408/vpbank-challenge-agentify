@@ -1,7 +1,10 @@
 'use client';
 
 import { SEGMENT_COLORS } from '@/constants';
-import { useRegenerateEmailMutation } from '@/lib/api';
+import {
+  useRegenerateEmailMutation,
+  useUpdateEmailStatusMutation,
+} from '@/lib/api';
 import { IGenEmail, Segment } from '@/types';
 import {
   Alert,
@@ -57,6 +60,8 @@ const DraftMessage: FC<Props> = ({
 
   const { mutate: regenerateEmail, isPending: isRegenerating } =
     useRegenerateEmailMutation();
+  const { mutate: updateEmailStatus, isPending: isUpdatingStatus } =
+    useUpdateEmailStatusMutation();
 
   useEffect(() => {
     if (open && event) {
@@ -111,6 +116,29 @@ const DraftMessage: FC<Props> = ({
     );
   };
 
+  const handleSendEmail = () => {
+    if (!event?.id) return;
+    updateEmailStatus(
+      {
+        emailId: event.id,
+      },
+      {
+        onSuccess: () => {
+          message.success(
+            messageType === 'email'
+              ? 'Email sent successfully'
+              : 'Contacted successfully',
+          );
+          refetchEmailsDraft();
+          onClose();
+        },
+        onError: (err) => {
+          message.error(err.response?.data.message || 'Failed to send email');
+        },
+      },
+    );
+  };
+
   return (
     <>
       <Modal
@@ -143,15 +171,24 @@ const DraftMessage: FC<Props> = ({
               Copy to Clipboard
             </Button>
             {messageType === 'email' ? (
-              <Button key="send-email" icon={<LuSend />} block type="primary">
+              <Button
+                key="send-email"
+                loading={isUpdatingStatus}
+                icon={<LuSend />}
+                block
+                type="primary"
+                onClick={handleSendEmail}
+              >
                 Send Email
               </Button>
             ) : (
               <Button
                 key="contacted"
+                loading={isUpdatingStatus}
                 icon={<LuCircleCheck />}
                 block
                 type="primary"
+                onClick={handleSendEmail}
               >
                 Contacted
               </Button>

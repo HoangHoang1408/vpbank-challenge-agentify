@@ -4,6 +4,7 @@ import {
   IGenEmailParams,
   IRegenerateEmailParams,
   IResponse,
+  IUpdateEmailStatusParams,
 } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -35,3 +36,20 @@ export const useRegenerateEmailMutation = () =>
       },
     },
   );
+
+export const useUpdateEmailStatusMutation = () =>
+  useMutation<
+    IResponse<IGenEmail>,
+    AxiosError<IError>,
+    IUpdateEmailStatusParams
+  >({
+    mutationFn: async ({ emailId, status = 'SENT' }) => {
+      const response = await API.patch<IResponse<IGenEmail>>(
+        `gen-email/${emailId}/status`,
+        {
+          status,
+        },
+      );
+      return response.data;
+    },
+  });
