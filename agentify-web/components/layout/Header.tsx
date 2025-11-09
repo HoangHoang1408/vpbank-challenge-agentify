@@ -61,7 +61,7 @@ const Header: FC = () => {
                   <Avatar
                     size={48}
                     className="bg-[#193876]! font-medium text-base!"
-                    src="https://avatar.iran.liara.run/public/30"
+                    src="/images/user-avatar.png"
                   >
                     {rmInfo?.name
                       .split(' ')
@@ -140,7 +140,7 @@ const Header: FC = () => {
             <Avatar
               size={36}
               className="bg-[#193876]! font-medium text-sm! cursor-pointer hover:opacity-80 transition-opacity"
-              src="https://avatar.iran.liara.run/public/30"
+              src="/images/user-avatar.png"
             >
               {rmInfo?.name
                 .split(' ')
