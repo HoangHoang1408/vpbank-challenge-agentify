@@ -3,6 +3,7 @@ export type Method = 'email' | 'tone';
 
 export interface IResponse<T = unknown> {
   success: boolean;
+  message?: string;
   data: T;
   count?: number;
   total?: number;

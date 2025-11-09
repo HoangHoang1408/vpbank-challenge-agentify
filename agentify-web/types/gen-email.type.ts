@@ -38,3 +38,8 @@ export interface IRegenerateEmailParams {
   emailId: number;
   customPrompt?: string;
 }
+
+export interface IUpdateEmailStatusParams {
+  emailId: number;
+  status?: EmailStatus;
+}
