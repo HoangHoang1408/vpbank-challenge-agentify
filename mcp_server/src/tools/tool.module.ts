@@ -8,13 +8,14 @@ import { Customer } from "src/customer/entities/customer.entity";
 import { Card } from "src/card/entities/card.entity";
 import { CustomerTool } from "./customer.tool";
 import { CardTool } from "./card.tool";
+import { RecommendationTool } from "./recommendation.tool";
 
 @Module({
     imports: [McpModule.forRoot({
         name: 'tools',
         version: '1.0.0',
     }), TypeOrmModule.forFeature([FactRmTask, RelationshipManager, Customer, Card])],
-    providers: [RmTaskTool, CustomerTool, CardTool],
-    exports: [RmTaskTool, CustomerTool, CardTool],
+    providers: [RmTaskTool, CustomerTool, CardTool, RecommendationTool],
+    exports: [RmTaskTool, CustomerTool, CardTool, RecommendationTool],
 })
 export class ToolModule { }

@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  agent_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - MCP_SERVER_URL=http://mcp_server:3000/mcp
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    depends_on:
+      - mcp_server
+    networks:
+      - backend-network
+
+  mcp_server:
+    build:
+      context: ../mcp_server
+      dockerfile: Dockerfile
+    container_name: mcp_server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../mcp_server/.env
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  backend-network:
+    driver: bridge
+

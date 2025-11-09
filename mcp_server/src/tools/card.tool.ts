@@ -77,7 +77,8 @@ export class CardTool {
         if (usedFields.size === 0) {
             return {
                 product_info: {},
-                message: "No search criteria provided. Please provide at least one information (card type, product name, or card network) to search for a card product."
+                message: "No search criteria provided. Please provide at least one information (card type, product name, or card network) to search for a card product.",
+                code: "failed"
             };
         }
 
@@ -89,7 +90,8 @@ export class CardTool {
             if (!cards || cards.length === 0) {
                 return {
                     product_info: {},
-                    message: "No card product found matching the provided criteria. Please ask back for different information."
+                    message: "No card product found matching the provided criteria. Please ask back for different information.",
+                    code: "failed"
                 };
             }
 
@@ -122,7 +124,8 @@ export class CardTool {
                     product_info: {},
                     message: wasUsedInSearch
                         ? `Multiple card products (${cards.length}) found matching the criteria. Please ask back for full ${fieldName}.`
-                        : `Multiple card products (${cards.length}) found matching the criteria. Please ask back for ${fieldName}.`
+                        : `Multiple card products (${cards.length}) found matching the criteria. Please ask back for ${fieldName}.`,
+                    code: "failed"
                 };
             }
 
@@ -142,13 +145,15 @@ export class CardTool {
                 product_info: productInfo,
                 message: card.isActive
                     ? "Card product found successfully."
-                    : "Warning: Card product is not active."
+                    : "Card product found successfully. Warning: Card product is not active.",
+                code: "succeeded"
             };
 
         } catch (error) {
             return {
                 product_info: {},
-                message: `An error occurred while searching for card product: ${error instanceof Error ? error.message : String(error)}`
+                message: `An error occurred while searching for card product: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
             };
         }
     }

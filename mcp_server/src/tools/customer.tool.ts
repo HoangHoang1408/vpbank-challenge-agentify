@@ -69,7 +69,8 @@ export class CustomerTool {
         if (!rmId) {
             return {
                 customer_info: {},
-                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
             };
         }
 
@@ -151,7 +152,8 @@ export class CustomerTool {
         if (usedFields.size === 0) {
             return {
                 customer_info: {},
-                message: "No search criteria provided. Please provide at least one information (name, email, phone, address, job title, segment, state) to search for a customer."
+                message: "No search criteria provided. Please provide at least one information (name, email, phone, address, job title, segment, state) to search for a customer.",
+                code: "failed"
             };
         }
 
@@ -163,7 +165,8 @@ export class CustomerTool {
             if (!customers || customers.length === 0) {
                 return {
                     customer_info: {},
-                    message: "No customer found matching the provided criteria. Please ask back for different information."
+                    message: "No customer found matching the provided criteria. Please ask back for different information.",
+                    code: "failed"
                 };
             }
 
@@ -194,7 +197,8 @@ export class CustomerTool {
                     customer_info: {},
                     message: wasUsedInSearch
                         ? `Multiple customers (${customers.length}) found matching the criteria. Please ask back for customer's full ${fieldName}.`
-                        : `Multiple customers (${customers.length}) found matching the criteria. Please ask back for customer's ${fieldName}.`
+                        : `Multiple customers (${customers.length}) found matching the criteria. Please ask back for customer's ${fieldName}.`,
+                    code: "failed"
                 };
             }
 
@@ -221,13 +225,15 @@ export class CustomerTool {
                 customer_info: customerInfo,
                 message: customer.isActive
                     ? "Customer found successfully."
-                    : "Warning: Customer is not active."
+                    : "Customer found successfully. Warning: Customer is not active.",
+                code: "succeeded"
             };
 
         } catch (error) {
             return {
                 customer_info: {},
-                message: `An error occurred while searching for customer: ${error instanceof Error ? error.message : String(error)}`
+                message: `An error occurred while searching for customer: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
             };
         }
     }

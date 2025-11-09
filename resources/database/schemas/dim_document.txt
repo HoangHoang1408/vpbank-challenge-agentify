@@ -1,0 +1,9 @@
+| Table Name   | Column Name     | Category    | Data Type    | Key/Constraint   | Description                                  | Example                              |
+|:-------------|:----------------|:------------|:-------------|:-----------------|:---------------------------------------------|:-------------------------------------|
+| dim_document | document_key    | Key         | INT          | Primary Key      | Surrogate key for the document.              | 401                                  |
+| dim_document | document_id     | Business ID | VARCHAR(50)  | Unique, Not Null | ID from the document management system.      | POL-AML-2025                         |
+| dim_document | document_name   | Detail      | VARCHAR(255) | Not Null         | The title of the document.                   | Anti-Money Laundering Policy 2025    |
+| dim_document | document_type   | Detail      | VARCHAR(50)  | Not Null         | Policy, Product_Manual, FAQ.                 | Policy                               |
+| dim_document | source_location | Detail      | VARCHAR(500) | Not Null         | The URI/path to the source document.         | sharepoint://docs/compliance/aml.pdf |
+| dim_document | last_updated    | Status      | DATETIME     | Not Null         | Timestamp of the last document modification. | 2025-01-10 15:00:00                  |
+| dim_document | is_active       | Status      | BOOLEAN      | Not Null         | Is this the current version?                 | True                                 |
