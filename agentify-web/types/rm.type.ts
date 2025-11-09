@@ -28,3 +28,14 @@ export interface IUpdateRMEmailSignatureParams {
   id: number;
   emailSignature: string;
 }
+
+export interface IRMCustomPrompt {
+  id: number;
+  name?: string;
+  customPrompt: string | null;
+}
+
+export interface IUpdateRMCustomPromptParams {
+  id: number;
+  customPrompt: string;
+}

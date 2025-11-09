@@ -2,7 +2,9 @@ import {
   IError,
   IResponse,
   IRM,
+  IRMCustomPrompt,
   IRMEmailSignature,
+  IUpdateRMCustomPromptParams,
   IUpdateRMEmailSignatureParams,
 } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -40,6 +42,34 @@ export const useUpdateRMEmailSignatureMutation = () =>
         `rms/${id}/email-signature`,
         {
           emailSignature,
+        },
+      );
+      return response.data;
+    },
+  });
+
+export const useGetRMCustomPromptQuery = (id: number) =>
+  useQuery<IResponse<IRMCustomPrompt>, AxiosError<IError>>({
+    queryKey: ['rm-custom-prompt', id],
+    queryFn: async () => {
+      const response = await API.get<IResponse<IRMCustomPrompt>>(
+        `rms/${id}/custom-prompt`,
+      );
+      return response.data;
+    },
+  });
+
+export const useUpdateRMCustomPromptMutation = () =>
+  useMutation<
+    IResponse<IRMCustomPrompt>,
+    AxiosError<IError>,
+    IUpdateRMCustomPromptParams
+  >({
+    mutationFn: async ({ id, customPrompt }) => {
+      const response = await API.patch<IResponse<IRMCustomPrompt>>(
+        `rms/${id}/custom-prompt`,
+        {
+          customPrompt,
         },
       );
       return response.data;
