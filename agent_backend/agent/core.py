@@ -35,10 +35,10 @@ def get_messages(state: MessagesState) -> List[AnyMessage]:
     max_successful_tool_calls = 2
     add_fail_tool_call = True
     system_message = SystemMessage(
-        content="Today is " + get_today_date() + ".\n"
-        "You are an intelligent copilot for Vietnamese Relationship Managers, "
-        "designed to streamline their workflow and provide data-driven insights "
-        "by expertly using a suite of internal tools."
+        content="Hôm nay là " + get_today_date() + ".\n"
+        "Bạn là trợ lý thông minh cho Quản lý Quan hệ Khách hàng (Relationship Manager) tại Việt Nam, "
+        "được thiết kế để tối ưu hóa quy trình làm việc và cung cấp thông tin chi tiết dựa trên dữ liệu "
+        "bằng cách sử dụng thành thạo bộ công cụ nội bộ."
     )
     filtered_messages: List[AnyMessage] = []
     
@@ -398,7 +398,7 @@ class AgentCore:
             
         except Exception as e:
             yield {
-                "content": f"Error: {str(e)}",
+                "content": f"Lỗi: {str(e)}",
                 "done": True,
                 "interrupted": False,
             }
@@ -436,7 +436,7 @@ class AgentCore:
                 break
         
         if not tool_call:
-            return {"messages": [AIMessage(content="Error: Could not find the tool call to execute.")]}
+            return {"messages": [AIMessage(content="Lỗi: Không tìm thấy lệnh công cụ để thực thi.")]}
         
         # Get the tool name from the tool call (will be "create_rm_task" or "update_rm_task")
         tool_name = tool_call.get("name")
@@ -454,13 +454,13 @@ class AgentCore:
                     break
         
         if not internal_tool:
-            return {"messages": [AIMessage(content="Tool run successfully!")]}
+            raise ValueError(f"Không tìm thấy công cụ _{tool_name} trong MCP Server")
         
         try:
             # Prepare arguments for the internal tool
             if tool_name == "create_rm_task":
                 if self.current_rm_id is None:
-                    return {"messages": [AIMessage(content="Error: Relationship Manager ID not found.")]}
+                    return {"messages": [AIMessage(content="Lỗi: Không tìm thấy ID của Quản lý Quan hệ Khách hàng.")]}
                 # Add rmId to the arguments
                 mcp_args = {
                     "rmId": int(self.current_rm_id),
@@ -478,13 +478,13 @@ class AgentCore:
                     "updateTaskDetails": tool_args.get("updateTaskDetails"),  # type: ignore
                 }
             else:
-                return {"messages": [AIMessage(content="Tool run successfully!")]}
+                return {"messages": [AIMessage(content="Công cụ đã chạy thành công!")]}
             
             # Execute the actual tool via MCP
             result = await internal_tool.ainvoke(mcp_args)
             
             # Return success message
-            success_message = f"Task executed successfully! {result.get('message', '') if isinstance(result, dict) else str(result)}"
+            success_message = f"Nhiệm vụ đã được thực thi thành công! {result.get('message', '') if isinstance(result, dict) else str(result)}"
             return {
                 "messages": [
                     AIMessage(content=success_message)
@@ -493,7 +493,7 @@ class AgentCore:
         except Exception as e:
             return {
                 "messages": [
-                    AIMessage(content=f"Error executing tool: {str(e)}")
+                    AIMessage(content=f"Lỗi khi thực thi công cụ: {str(e)}")
                 ]
             }
 
