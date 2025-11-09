@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsBoolean, IsDateString, IsNumber, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsBoolean, IsDateString, IsNumber, IsEnum, IsOptional } from 'class-validator';
 import { RmLevel } from '../entities/rm.entity';
 
 export class CreateRmDto {
@@ -62,5 +62,15 @@ export class CreateRmDto {
     @IsBoolean()
     @IsNotEmpty()
     isActive: boolean;
+
+    @ApiPropertyOptional({
+        description: 'Email signature template that will be appended to all generated emails. Supports template variables: {{Name}} for RM name, {{Title}} for RM title. If not provided, uses default template.',
+        example: 'Best regards,\n{{Name}}\n{{Title}}\nVPBank',
+        type: String,
+        nullable: true,
+    })
+    @IsString()
+    @IsOptional()
+    emailSignature?: string | null;
 }
 

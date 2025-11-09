@@ -11,6 +11,7 @@ const configuration = () => ({
     },
     openai: {
         apiKey: process.env.OPENAI_API_KEY ?? '',
+        baseUrl: process.env.SERVICE_BASE_URL ?? 'https://api.openai.com/v1',
     },
 });
 export default configuration;

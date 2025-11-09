@@ -32,6 +32,7 @@ import { GenEmailModule } from './gen_email/genEmail.module';
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_NAME: Joi.string().required(),
         OPENAI_API_KEY: Joi.string().required(),
+        SERVICE_BASE_URL: Joi.string().required(),
       }),
     }),
     ScheduleModule.forRoot(),

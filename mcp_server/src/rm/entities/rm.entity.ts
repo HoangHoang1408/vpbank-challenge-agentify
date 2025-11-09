@@ -78,6 +78,15 @@ export class RelationshipManager {
     @Column({ type: 'text', nullable: true })
     customPrompt: string | null;
 
+    @ApiPropertyOptional({
+        description: 'Email signature template that will be appended to all generated emails. Supports template variables: {{Name}} for RM name, {{Title}} for RM title. If not set, uses default template: "Best regards,\\n{{Name}}\\n{{Title}}\\nVPBank"',
+        example: 'Best regards,\n{{Name}}\n{{Title}}\nVPBank',
+        type: String,
+        nullable: true,
+    })
+    @Column({ type: 'text', nullable: true })
+    emailSignature: string | null;
+
     @OneToMany(() => Customer, customer => customer.relationshipManager)
     customers: Customer[];
 

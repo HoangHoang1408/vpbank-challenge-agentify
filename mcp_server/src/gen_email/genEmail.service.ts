@@ -34,6 +34,7 @@ export class GenEmailService {
     async generateResponse(prompt: string, model: string = 'gpt-4o') {
         const openai = new OpenAI({
             apiKey: this.configService.get('openai.apiKey'),
+            baseURL: this.configService.get('openai.baseUrl'),
         });
         const completion = await openai.chat.completions.create({
             model: model,
@@ -43,6 +44,23 @@ export class GenEmailService {
             ],
         });
         return completion.choices[0].message.content;
+    }
+
+    /**
+     * Process email signature template by replacing template variables with actual RM data
+     * Supports {{Name}} and {{Title}} template variables
+     */
+    private processEmailSignature(rm: RelationshipManager): string {
+        // Default template if RM doesn't have a custom signature
+        const defaultTemplate = 'Best regards,\n{{Name}}\n{{Title}}\nVPBank';
+
+        // Use RM's custom signature or default template
+        const template = rm.emailSignature || defaultTemplate;
+
+        // Replace template variables with actual RM data
+        return template
+            .replace(/\{\{Name\}\}/g, rm.name)
+            .replace(/\{\{Title\}\}/g, rm.title);
     }
 
     /**
@@ -95,19 +113,21 @@ export class GenEmailService {
         const systemPrompt = `Bạn là một chuyên viên quan hệ khách hàng chuyên nghiệp tại VPBank. 
 Nhiệm vụ của bạn là viết email cá nhân hóa và tin nhắn trực tiếp cho khách hàng.
 
-- Email: Giọng văn trang trọng nhưng thân thiện, ấm áp và xây dựng mối quan hệ với khách hàng
+- Email: Giọng văn trang trọng nhưng thân thiện, ấm áp và xây dựng mối quan hệ với khách hàng. 
+  QUAN TRỌNG: Chỉ viết phần lời chào và nội dung chính, KHÔNG bao gồm phần chữ ký hay lời kết cuối email (như "Trân trọng", "Best regards", v.v.) vì phần này sẽ được tự động thêm vào sau.
 - Message: Giọng văn tự nhiên, thân mật hơn, phù hợp để gửi qua tin nhắn trực tiếp hoặc SMS. 
   Hãy tự điều chỉnh mức độ trang trọng dựa trên phân khúc và mối quan hệ với khách hàng.
 
 Trả lời theo định dạng JSON:
 {
   "subject": "Tiêu đề email ngắn gọn và hấp dẫn",
-  "body": "Nội dung email đầy đủ với lời chào, nội dung chính và lời kết",
+  "body": "Nội dung email với lời chào và nội dung chính (KHÔNG bao gồm chữ ký)",
   "message": "Tin nhắn ngắn gọn, thân thiện để gửi trực tiếp"
 }`;
 
         const openai = new OpenAI({
             apiKey: this.configService.get('openai.apiKey'),
+            baseURL: this.configService.get('openai.baseUrl'),
         });
 
         const completion = await openai.chat.completions.create({
@@ -126,9 +146,13 @@ Trả lời theo định dạng JSON:
 
         const emailContent = JSON.parse(response);
 
+        // Process and append email signature to the body
+        const signature = this.processEmailSignature(rm);
+        const bodyWithSignature = `${emailContent.body}\n\n${signature}`;
+
         return {
             subject: emailContent.subject,
-            body: emailContent.body,
+            body: bodyWithSignature,
             message: emailContent.message,
         };
     }
@@ -352,7 +376,7 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
                 // Update existing task
                 await this.taskService.update(existingTask.id, {
                     taskDetails,
-                    status: TaskStatus.IN_PROGRESS,
+                    status: TaskStatus.COMPLETED,
                     dueDate,
                 });
 
@@ -364,7 +388,7 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
                     rmId: email.rmId,
                     customerId: email.customerId,
                     taskType: TaskType.EMAIL,
-                    status: TaskStatus.IN_PROGRESS,
+                    status: TaskStatus.COMPLETED,
                     taskDetails,
                     dueDate,
                 });

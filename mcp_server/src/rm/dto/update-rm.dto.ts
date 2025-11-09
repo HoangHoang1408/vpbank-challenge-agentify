@@ -71,5 +71,15 @@ export class UpdateRmDto {
     @IsString()
     @IsOptional()
     customPrompt?: string | null;
+
+    @ApiPropertyOptional({
+        description: 'Email signature template that will be appended to all generated emails. Supports template variables: {{Name}} for RM name, {{Title}} for RM title. Set to null to use default template.',
+        example: 'Best regards,\n{{Name}}\n{{Title}}\nVPBank',
+        type: String,
+        nullable: true,
+    })
+    @IsString()
+    @IsOptional()
+    emailSignature?: string | null;
 }
 

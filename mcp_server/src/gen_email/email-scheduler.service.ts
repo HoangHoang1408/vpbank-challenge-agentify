@@ -15,10 +15,10 @@ export class EmailSchedulerService {
     /**
      * Run daily at 5 AM to generate emails and cleanup expired ones
      */
-    @Cron('0 5 * * *', {
-        name: 'daily-email-generation',
-        timeZone: 'Asia/Ho_Chi_Minh',
-    })
+    // @Cron('0 5 * * *', {
+    //     name: 'daily-email-generation',
+    //     timeZone: 'Asia/Ho_Chi_Minh',
+    // })
     async handleDailyEmailGeneration() {
         this.logger.log('Starting daily email generation job at 5 AM...');
 

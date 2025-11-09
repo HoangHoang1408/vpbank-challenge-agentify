@@ -19,7 +19,7 @@ import {
     ApiBody,
 } from '@nestjs/swagger';
 import { RmService } from './rm.service';
-import { CreateRmDto, UpdateRmDto, FilterRmDto, UpdateCustomPromptDto } from './dto';
+import { CreateRmDto, UpdateRmDto, FilterRmDto, UpdateCustomPromptDto, UpdateEmailSignatureDto } from './dto';
 import { RelationshipManager } from './entities/rm.entity';
 
 @ApiTags('relationship-managers')
@@ -287,6 +287,103 @@ export class RmController {
                 id: rm.id,
                 name: rm.name,
                 customPrompt: rm.customPrompt,
+            },
+        };
+    }
+
+    @Patch(':id/email-signature')
+    @ApiOperation({
+        summary: 'Update RM email signature',
+        description: 'Set or update the email signature template that will be appended to all generated emails for this RM. Supports template variables: {{Name}} for RM name, {{Title}} for RM title.',
+    })
+    @ApiParam({ name: 'id', type: 'number', description: 'RM ID' })
+    @ApiBody({
+        type: UpdateEmailSignatureDto,
+        description: 'Email signature configuration',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Email signature successfully updated',
+        schema: {
+            properties: {
+                success: { type: 'boolean', example: true },
+                message: { type: 'string', example: 'Email signature updated successfully' },
+                data: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', example: 1 },
+                        emailSignature: {
+                            type: 'string',
+                            example: 'Best regards,\n{{Name}}\n{{Title}}\nVPBank',
+                            nullable: true,
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'RM not found',
+    })
+    async updateEmailSignature(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: UpdateEmailSignatureDto
+    ) {
+        const rm = await this.rmService.update(id, { emailSignature: dto.emailSignature });
+
+        return {
+            success: true,
+            message: 'Email signature updated successfully',
+            data: {
+                id: rm.id,
+                emailSignature: rm.emailSignature,
+            },
+        };
+    }
+
+    @Get(':id/email-signature')
+    @ApiOperation({
+        summary: 'Get RM email signature',
+        description: 'Retrieve the current email signature template for this RM',
+    })
+    @ApiParam({ name: 'id', type: 'number', description: 'RM ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved email signature',
+        schema: {
+            properties: {
+                success: { type: 'boolean', example: true },
+                data: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', example: 1 },
+                        name: { type: 'string', example: 'Nguyen Van A' },
+                        title: { type: 'string', example: 'Senior Relationship Manager' },
+                        emailSignature: {
+                            type: 'string',
+                            example: 'Best regards,\n{{Name}}\n{{Title}}\nVPBank',
+                            nullable: true,
+                        },
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'RM not found',
+    })
+    async getEmailSignature(@Param('id', ParseIntPipe) id: number) {
+        const rm = await this.rmService.findOne(id);
+
+        return {
+            success: true,
+            data: {
+                id: rm.id,
+                name: rm.name,
+                title: rm.title,
+                emailSignature: rm.emailSignature,
             },
         };
     }
