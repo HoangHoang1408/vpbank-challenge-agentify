@@ -1,22 +1,22 @@
 import { cn } from '@/lib/utils';
-import { Button, Input, Layout, Spin, Typography, message as antdMessage } from 'antd';
+import { Button, Input, Layout, Modal, Spin, Typography, message as antdMessage } from 'antd';
 import { FC, useEffect, useRef, useState } from 'react';
-import { LuSend, LuSparkles, LuX } from 'react-icons/lu';
+import { LuSend, LuSparkles, LuTrash2, LuX } from 'react-icons/lu';
 import ChatMessage from './ChatMessage';
 import { IChatMessage } from '@/types';
-import { useSendChatMessageMutation } from '@/lib/api';
+import { useClearChatHistoryMutation, useSendChatMessageMutation } from '@/lib/api';
 
 const WELCOME_MESSAGE: IChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: `Hi! I'm your AI Chief of Staff. I can help you with:
+  content: `Xin chào! Tôi là trợ lý AI của bạn. Tôi có thể giúp bạn với:
 
-• Strategic Prioritization - Find top client opportunities
-• Next Best Action - Get personalized recommendations
-• Performance Reporting - Check your metrics instantly
-• CRM Data Entry - Log meetings naturally
+• Ưu tiên chiến lược - Tìm kiếm cơ hội khách hàng hàng đầu
+• Hành động tiếp theo tốt nhất - Nhận đề xuất cá nhân hóa
+• Báo cáo hiệu suất - Kiểm tra chỉ số của bạn ngay lập tức
+• Nhập dữ liệu CRM - Ghi chép cuộc họp một cách tự nhiên
 
-How can I assist you today?`,
+Tôi có thể hỗ trợ gì cho bạn hôm nay?`,
   timestamp: new Date(),
 };
 
@@ -27,6 +27,7 @@ const AgentChat: FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const sendMessageMutation = useSendChatMessageMutation();
+  const clearHistoryMutation = useClearChatHistoryMutation();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -67,7 +68,7 @@ const AgentChat: FC = () => {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
-      antdMessage.error('Failed to send message. Please try again.');
+      antdMessage.error('Không thể gửi tin nhắn. Vui lòng thử lại.');
 
       // Optionally remove the user message on error
       setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
@@ -79,6 +80,26 @@ const AgentChat: FC = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleClearHistory = () => {
+    Modal.confirm({
+      title: 'Xóa lịch sử trò chuyện',
+      content: 'Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện? Hành động này không thể hoàn tác.',
+      okText: 'Xóa',
+      cancelText: 'Hủy',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          await clearHistoryMutation.mutateAsync(1); // rm_id = 1
+          setMessages([WELCOME_MESSAGE]);
+          antdMessage.success('Đã xóa lịch sử trò chuyện thành công');
+        } catch (error) {
+          console.error('Error clearing chat history:', error);
+          antdMessage.error('Không thể xóa lịch sử trò chuyện. Vui lòng thử lại.');
+        }
+      },
+    });
   };
 
   return (
@@ -107,17 +128,27 @@ const AgentChat: FC = () => {
                 type="secondary"
                 className="text-xs! m-0! leading-none"
               >
-                Always here to help
+                Luôn sẵn sàng hỗ trợ
               </Typography.Paragraph>
             </div>
           </div>
 
-          <Button
-            shape="circle"
-            icon={<LuX />}
-            type="text"
-            onClick={() => setCollapsed(true)}
-          />
+          <div className="flex items-center gap-1">
+            <Button
+              shape="circle"
+              icon={<LuTrash2 />}
+              type="text"
+              onClick={handleClearHistory}
+              disabled={clearHistoryMutation.isPending}
+              title="Xóa lịch sử trò chuyện"
+            />
+            <Button
+              shape="circle"
+              icon={<LuX />}
+              type="text"
+              onClick={() => setCollapsed(true)}
+            />
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
@@ -126,7 +157,7 @@ const AgentChat: FC = () => {
             <div className="flex justify-start mt-4">
               <div className="max-w-[85%] rounded-lg bg-[#eff2f5] p-3">
                 <Spin size="small" />
-                <span className="ml-2 text-gray-600">Thinking...</span>
+                <span className="ml-2 text-gray-600">Đang suy nghĩ...</span>
               </div>
             </div>
           )}
@@ -136,7 +167,7 @@ const AgentChat: FC = () => {
         <div className="border-t border-border p-4">
           <div className="flex gap-2">
             <Input.TextArea
-              placeholder="Ask me anything..."
+              placeholder="Hỏi tôi bất cứ điều gì..."
               autoSize={{ minRows: 3, maxRows: 6 }}
               value={messagesInput}
               onChange={(e) => setMessagesInput(e.target.value)}

@@ -18,3 +18,10 @@ export const useSendChatMessageMutation = () =>
     },
   });
 
+export const useClearChatHistoryMutation = () =>
+  useMutation<void, AxiosError<IError>, number>({
+    mutationFn: async (rm_id: number) => {
+      await ChatAPI.delete(`/chat/history/${rm_id}`);
+    },
+  });
+
