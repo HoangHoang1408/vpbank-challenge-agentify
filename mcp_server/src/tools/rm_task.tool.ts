@@ -505,14 +505,6 @@ export class RmTaskTool {
                 };
             }
 
-            // Validate that customer is assigned to RM
-            if (customer.rmId !== rmId) {
-                return {
-                    message: `Customer ${customerId} is not assigned to RM ${rmId}`,
-                    code: "failed"
-                };
-            }
-
             // Generate a unique taskId
             const taskId = `TASK-${randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase()}`;
 
@@ -619,9 +611,6 @@ export class RmTaskTool {
         name: "_create_rm_task",
         description: "Internal tool to actually create a task in the database. This should only be called after user approval.",
         parameters: z.object({
-            rmId: z.number({
-                "description": "The Relationship Manager ID",
-            }),
             customerId: z.number({
                 "description": "The unique identifier for the customer",
             }),
@@ -640,20 +629,28 @@ export class RmTaskTool {
         })
     })
     async _createRmTask({
-        rmId,
         customerId,
         taskType,
         taskStatus,
         taskDueDate,
         taskDetails
     }: {
-        rmId: number;
         customerId: number;
         taskType: TaskType;
         taskStatus: TaskStatus;
         taskDueDate: string;
         taskDetails: string;
     }, context: Context, request: Request) {
+        // Extract relationship manager id from request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
+            };
+        }
+
         return await this._createRmTaskInternal(
             rmId,
             customerId,
