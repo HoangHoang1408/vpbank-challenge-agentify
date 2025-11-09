@@ -136,7 +136,7 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
                   type="secondary"
                   className="text-xs! mb-0.25! capitalize"
                 >
-                  {task.taskType.toLowerCase()}
+                  {task.taskType.split('_').join(' ').toLowerCase()}
                 </Typography.Text>
               </div>
               <div className="flex items-center gap-1">
