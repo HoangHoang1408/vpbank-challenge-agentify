@@ -13,8 +13,12 @@ const EventList: FC = () => {
     rmId: 1,
     status: 'DRAFT',
   });
+  const { data: historyEvents, refetch: refetchEmailsHistory } =
+    useGetListEmail({
+      rmId: 1,
+      status: 'SENT',
+    });
 
-  const [historyEvents, setHistoryEvents] = useState<IGenEmail[]>([]);
   const [openDraftMessage, setOpenDraftMessage] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<IGenEmail | null>(null);
 
@@ -47,13 +51,13 @@ const EventList: FC = () => {
         </Space>
       </div>
 
-      {historyEvents.length > 0 && (
+      {historyEvents?.data?.length && historyEvents.data.length > 0 && (
         <div className="mt-6">
           <Typography.Title className="text-xl! sm:text-2xl! font-bold! mb-3! sm:mb-4!">
             History
           </Typography.Title>
           <Space direction="vertical" className="w-full" size="middle">
-            {historyEvents.map((event) => (
+            {historyEvents.data.map((event) => (
               <EventCardHistory key={event.id} event={event} />
             ))}
           </Space>
@@ -68,6 +72,7 @@ const EventList: FC = () => {
         }}
         event={selectedEvent}
         refetchEmailsDraft={refetchEmailsDraft}
+        refetchEmailsHistory={refetchEmailsHistory}
         updateSelectedEvent={(event) => {
           setSelectedEvent(event);
         }}

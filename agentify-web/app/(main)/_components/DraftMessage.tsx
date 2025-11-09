@@ -40,6 +40,7 @@ interface Props {
   onClose: () => void;
   event: IGenEmail | null;
   refetchEmailsDraft: () => void;
+  refetchEmailsHistory: () => void;
   updateSelectedEvent: (event: IGenEmail) => void;
 }
 
@@ -48,6 +49,7 @@ const DraftMessage: FC<Props> = ({
   open,
   onClose,
   refetchEmailsDraft,
+  refetchEmailsHistory,
   updateSelectedEvent,
 }) => {
   const [form] = Form.useForm<FormValues>();
@@ -130,6 +132,7 @@ const DraftMessage: FC<Props> = ({
               : 'Contacted successfully',
           );
           refetchEmailsDraft();
+          refetchEmailsHistory();
           onClose();
         },
         onError: (err) => {
