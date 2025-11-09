@@ -23,13 +23,49 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+VPBank CRM MCP Server - A NestJS-based Model Context Protocol (MCP) server providing tools for customer relationship management, card product recommendations, and task management.
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL (v17 or higher)
+- OpenAI API Key
 
 ## Project setup
 
+1. **Install dependencies**
 ```bash
 $ pnpm install
 ```
+
+2. **Configure environment variables**
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Application Configuration
+APP_PORT=3000
+
+# PostgreSQL Database Configuration
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_NAME=postgres
+
+# OpenAI API Configuration
+# Get your API key from https://platform.openai.com/api-keys
+OPENAI_API_KEY=your-openai-api-key-here
+```
+
+3. **Setup PostgreSQL Database**
+
+You can use Docker Compose to start a PostgreSQL instance:
+```bash
+$ docker-compose up -d postgres
+```
+
+Or install PostgreSQL locally and ensure it's running on the configured port.
 
 ## Compile and run the project
 
@@ -37,11 +73,51 @@ $ pnpm install
 # development
 $ pnpm run start
 
-# watch mode
+# watch mode (recommended for development)
 $ pnpm run start:dev
 
 # production mode
 $ pnpm run start:prod
+```
+
+Once the server is running, you can:
+- Access the API at `http://localhost:3000`
+- View Swagger documentation at `http://localhost:3000/api`
+- Access MCP tools endpoint at `http://localhost:3000/mcp`
+
+## Available Tools
+
+The MCP server provides 8 tools for CRM operations:
+
+### Customer Management
+- **`find_customer`** - Find customer by various criteria (name, email, phone, etc.)
+
+### Card Product Management
+- **`find_card_product`** - Find card product by type, name, or network
+
+### AI-Powered Recommendations (New!)
+- **`recommend_card_products`** - Get AI recommendations for best card products for a customer
+- **`recommend_customers`** - Get AI recommendations for best customers for a card product
+
+### Task Management
+- **`find_rm_task`** - Find relationship manager tasks by criteria
+- **`create_rm_task`** - Create new task for relationship manager
+- **`update_rm_task`** - Update existing task
+- **`report_performance`** - Get performance report for relationship manager
+
+For detailed API documentation, visit the Swagger UI at `http://localhost:3000/api` when the server is running.
+
+## Database Management
+
+```bash
+# Seed database with mock data
+$ pnpm run db:seed
+
+# Export database to JSON
+$ pnpm run db:export
+
+# Clear all database data
+$ pnpm run db:clear
 ```
 
 ## Run tests

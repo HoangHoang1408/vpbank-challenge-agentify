@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { type Context, Tool } from "@rekog/mcp-nest";
 import type { Request } from "express";
 import z from "zod";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class RmTaskTool {
@@ -60,7 +61,8 @@ export class RmTaskTool {
         if (!rmId) {
             return {
                 task_info: {},
-                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
             };
         }
 
@@ -85,7 +87,8 @@ export class RmTaskTool {
             if (isNaN(customerId)) {
                 return {
                     task_info: {},
-                    message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it."
+                    message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it.",
+                    code: "failed"
                 };
             }
             queryBuilder.andWhere('task.customerId = :customerId', { customerId });
@@ -111,21 +114,24 @@ export class RmTaskTool {
                 if (isNaN(startDate.getTime())) {
                     return {
                         task_info: {},
-                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format.",
+                        code: "failed"
                     };
                 }
 
                 if (isNaN(endDate.getTime())) {
                     return {
                         task_info: {},
-                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format.",
+                        code: "failed"
                     };
                 }
 
                 if (startDate > endDate) {
                     return {
                         task_info: {},
-                        message: "Start date cannot be greater than end date. Please provide a valid date range."
+                        message: "Start date cannot be greater than end date. Please provide a valid date range.",
+                        code: "failed"
                     };
                 }
 
@@ -138,7 +144,8 @@ export class RmTaskTool {
                 if (isNaN(startDate.getTime())) {
                     return {
                         task_info: {},
-                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                        message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format.",
+                        code: "failed"
                     };
                 }
                 queryBuilder.andWhere('task.dueDate >= :startDate', { startDate: taskDueDateStart });
@@ -147,7 +154,8 @@ export class RmTaskTool {
                 if (isNaN(endDate.getTime())) {
                     return {
                         task_info: {},
-                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                        message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format.",
+                        code: "failed"
                     };
                 }
                 queryBuilder.andWhere('task.dueDate <= :endDate', { endDate: taskDueDateEnd });
@@ -163,7 +171,8 @@ export class RmTaskTool {
             if (!tasks || tasks.length === 0) {
                 return {
                     task_info: {},
-                    message: "No task found matching the provided criteria. Please ask back for different information."
+                    message: "No task found matching the provided criteria. Please ask back for different information.",
+                    code: "failed"
                 };
             }
 
@@ -189,7 +198,8 @@ export class RmTaskTool {
 
                 return {
                     task_info: {},
-                    message: `(${tasks.length}) tasks found matching the criteria. Please ask back for ${fieldName} to identify a single task.`
+                    message: `(${tasks.length}) tasks found matching the criteria. Please ask back for ${fieldName} to identify a single task.`,
+                    code: "failed"
                 };
             }
 
@@ -206,13 +216,15 @@ export class RmTaskTool {
 
             return {
                 task_info: taskInfo,
-                message: "Task found successfully."
+                message: "Task found successfully.",
+                code: "succeeded"
             };
 
         } catch (error) {
             return {
                 task_info: {},
-                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`
+                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
             };
         }
     }
@@ -256,14 +268,16 @@ export class RmTaskTool {
 
         if (!rmId) {
             return {
-                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
             };
         }
 
         // Validate customer ID
         if (isNaN(customerId)) {
             return {
-                message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it."
+                message: "Invalid customer ID. Customer ID must be an integer. Please provide a valid customer ID or ask back for customer information and use the `find_customer` tool to obtain it.",
+                code: "failed"
             };
         }
 
@@ -271,12 +285,15 @@ export class RmTaskTool {
         const dueDate = new Date(taskDueDate);
         if (isNaN(dueDate.getTime())) {
             return {
-                message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format."
+                message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format.",
+                code: "failed"
             };
         }
 
         return {
-            message: "All input is now valid. Ask for confirmation",
+            message: "All input is now valid.",
+            ask_confirmation: true,
+            code: "succeeded"
         };
     }
 
@@ -314,21 +331,24 @@ export class RmTaskTool {
 
         if (!rmId) {
             return {
-                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
             };
         }
 
         // Validate task ID
         if (isNaN(rmTaskId)) {
             return {
-                message: "Invalid task ID. Task ID must be an integer. Please provide a valid task ID or ask back for task information and use the `find_rm_task` tool to obtain it."
+                message: "Invalid task ID. Task ID must be an integer. Please provide a valid task ID or ask back for task information and use the `find_rm_task` tool to obtain it.",
+                code: "failed"
             };
         }
 
         // Check if at least one field to update is provided
         if (!updateTaskStatus && !updateTaskDueDate && !updateTaskDetails) {
             return {
-                message: "No fields to update. Please provide a field to update."
+                message: "No fields to update. Please provide a field to update.",
+                code: "failed"
             };
         }
 
@@ -337,13 +357,16 @@ export class RmTaskTool {
             const dueDate = new Date(updateTaskDueDate);
             if (isNaN(dueDate.getTime())) {
                 return {
-                    message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format."
+                    message: "Invalid task due date. Please provide a task due date in YYYY-MM-DD format.",
+                    code: "failed"
                 };
             }
         }
 
         return {
-            message: "All input is now valid. Ask for confirmation",
+            message: "All input is now valid.",
+            ask_confirmation: true,
+            code: "succeeded"
         };
     }
 
@@ -372,7 +395,8 @@ export class RmTaskTool {
         if (!rmId) {
             return {
                 task_info: {},
-                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'."
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
             };
         }
 
@@ -391,7 +415,8 @@ export class RmTaskTool {
             if (isNaN(start.getTime())) {
                 return {
                     task_info: {},
-                    message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format."
+                    message: "Invalid start date. Please provide a valid start date in YYYY-MM-DD format.",
+                    code: "failed"
                 };
             }
             queryBuilder.andWhere('task.createdAt >= :startDate', { startDate });
@@ -402,7 +427,8 @@ export class RmTaskTool {
             if (isNaN(end.getTime())) {
                 return {
                     task_info: {},
-                    message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format."
+                    message: "Invalid end date. Please provide a valid end date in YYYY-MM-DD format.",
+                    code: "failed"
                 };
             }
             queryBuilder.andWhere('task.createdAt <= :endDate', { endDate });
@@ -416,7 +442,8 @@ export class RmTaskTool {
             if (!results || results.length === 0) {
                 return {
                     task_info: {},
-                    message: "No task found during the period. Please ask back for a different period."
+                    message: "No task found during the period. Please ask back for a different period.",
+                    code: "failed"
                 };
             }
 
@@ -433,15 +460,245 @@ export class RmTaskTool {
             performanceReport["total tasks"] = totalTasks;
 
             return {
+                performance_report: performanceReport,
                 message: "Performance report retrieved successfully.",
-                performance_report: performanceReport
+                code: "succeeded"
             };
 
         } catch (error) {
             return {
                 task_info: {},
-                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`
+                message: `An error occurred while searching for task: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
             };
         }
+    }
+
+    /**
+     * Private method to actually create a task in the database.
+     * This is called by _create_rm_task MCP tool after user approval.
+     */
+    private async _createRmTaskInternal(
+        rmId: number,
+        customerId: number,
+        taskType: TaskType,
+        taskStatus: TaskStatus,
+        taskDueDate: string,
+        taskDetails: string = "",
+    ): Promise<{ message: string; code: string; taskId?: string; id?: number }> {
+        try {
+            // Validate RM exists
+            const rm = await this.rmRepository.findOne({ where: { id: rmId } });
+            if (!rm) {
+                return {
+                    message: `Relationship Manager with ID ${rmId} not found`,
+                    code: "failed"
+                };
+            }
+
+            // Validate Customer exists
+            const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+            if (!customer) {
+                return {
+                    message: `Customer with ID ${customerId} not found`,
+                    code: "failed"
+                };
+            }
+
+            // Generate a unique taskId
+            const taskId = `TASK-${randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase()}`;
+
+            // Parse the due date
+            const dueDate = new Date(taskDueDate);
+            if (isNaN(dueDate.getTime())) {
+                return {
+                    message: "Invalid task due date format",
+                    code: "failed"
+                };
+            }
+
+            // Create the task
+            const task = this.taskRepository.create({
+                taskId,
+                rmId,
+                customerId,
+                taskType,
+                status: taskStatus,
+                taskDetails,
+                dueDate,
+                relationshipManager: rm,
+                customer: customer,
+            });
+
+            const savedTask = await this.taskRepository.save(task);
+
+            return {
+                message: `Successfully created task in database. Task ID: ${savedTask.taskId}`,
+                code: "succeeded",
+                taskId: savedTask.taskId,
+                id: savedTask.id,
+            };
+        } catch (error) {
+            return {
+                message: `Database error while creating task: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
+            };
+        }
+    }
+
+    /**
+     * Private method to actually update a task in the database.
+     * This is called by _update_rm_task MCP tool after user approval.
+     */
+    private async _updateRmTaskInternal(
+        rmTaskId: number,
+        updateTaskStatus?: TaskStatus,
+        updateTaskDueDate?: string,
+        updateTaskDetails?: string,
+    ): Promise<{ message: string; code: string; taskId?: string; id?: number }> {
+        try {
+            // Find the task
+            const task = await this.taskRepository.findOne({ where: { id: rmTaskId } });
+            if (!task) {
+                return {
+                    message: `No task found with ID ${rmTaskId}`,
+                    code: "failed"
+                };
+            }
+
+            // Build update fields
+            if (updateTaskStatus !== undefined) {
+                task.status = updateTaskStatus;
+            }
+
+            if (updateTaskDueDate !== undefined) {
+                const dueDate = new Date(updateTaskDueDate);
+                if (isNaN(dueDate.getTime())) {
+                    return {
+                        message: "Invalid task due date format",
+                        code: "failed"
+                    };
+                }
+                task.dueDate = dueDate;
+            }
+
+            if (updateTaskDetails !== undefined) {
+                task.taskDetails = updateTaskDetails;
+            }
+
+            // Save the updated task
+            const updatedTask = await this.taskRepository.save(task);
+
+            return {
+                message: `Successfully updated task. Task ID: ${updatedTask.taskId}`,
+                code: "succeeded",
+                taskId: updatedTask.taskId,
+                id: updatedTask.id,
+            };
+        } catch (error) {
+            return {
+                message: `Database error while updating task: ${error instanceof Error ? error.message : String(error)}`,
+                code: "failed"
+            };
+        }
+    }
+
+    /**
+     * Internal MCP tool to actually create a task after user approval.
+     * This tool is NOT bound to the LLM - it's only called programmatically after approval.
+     */
+    @Tool({
+        name: "_create_rm_task",
+        description: "Internal tool to actually create a task in the database. This should only be called after user approval.",
+        parameters: z.object({
+            customerId: z.number({
+                "description": "The unique identifier for the customer",
+            }),
+            taskType: z.nativeEnum(TaskType, {
+                "description": "The type of task to create",
+            }),
+            taskStatus: z.nativeEnum(TaskStatus, {
+                "description": "The initial status of the task",
+            }),
+            taskDueDate: z.string({
+                "description": "The specific due date for the task in YYYY-MM-DD format",
+            }),
+            taskDetails: z.string({
+                "description": "Detailed description of the task",
+            }),
+        })
+    })
+    async _createRmTask({
+        customerId,
+        taskType,
+        taskStatus,
+        taskDueDate,
+        taskDetails
+    }: {
+        customerId: number;
+        taskType: TaskType;
+        taskStatus: TaskStatus;
+        taskDueDate: string;
+        taskDetails: string;
+    }, context: Context, request: Request) {
+        // Extract relationship manager id from request
+        const rmId = (request as any).rmId || (request.headers as any)['x-rm-id'];
+
+        if (!rmId) {
+            return {
+                message: "Relationship manager id not found in configuration. Please provide rmId in request headers as 'x-rm-id'.",
+                code: "failed"
+            };
+        }
+
+        return await this._createRmTaskInternal(
+            rmId,
+            customerId,
+            taskType,
+            taskStatus,
+            taskDueDate,
+            taskDetails
+        );
+    }
+
+    /**
+     * Internal MCP tool to actually update a task after user approval.
+     * This tool is NOT bound to the LLM - it's only called programmatically after approval.
+     */
+    @Tool({
+        name: "_update_rm_task",
+        description: "Internal tool to actually update a task in the database. This should only be called after user approval.",
+        parameters: z.object({
+            rmTaskId: z.number({
+                "description": "The unique identifier of the task to update",
+            }),
+            updateTaskStatus: z.optional(z.nativeEnum(TaskStatus, {
+                "description": "The new status of the task.",
+            })),
+            updateTaskDueDate: z.optional(z.string({
+                "description": "The new due date of the task in YYYY-MM-DD format.",
+            })),
+            updateTaskDetails: z.optional(z.string({
+                "description": "The new details of the task.",
+            })),
+        })
+    })
+    async _updateRmTask({
+        rmTaskId,
+        updateTaskStatus,
+        updateTaskDueDate,
+        updateTaskDetails
+    }: {
+        rmTaskId: number;
+        updateTaskStatus?: TaskStatus;
+        updateTaskDueDate?: string;
+        updateTaskDetails?: string;
+    }, context: Context, request: Request) {
+        return await this._updateRmTaskInternal(
+            rmTaskId,
+            updateTaskStatus,
+            updateTaskDueDate,
+            updateTaskDetails
+        );
     }
 }

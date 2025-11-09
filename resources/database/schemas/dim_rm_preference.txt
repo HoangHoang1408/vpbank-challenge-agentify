@@ -1,0 +1,6 @@
+| Table Name        | Column Name         | Category   | Data Type     | Key/Constraint            | Description                         | Example                          |
+|:------------------|:--------------------|:-----------|:--------------|:--------------------------|:------------------------------------|:---------------------------------|
+| dim_rm_preference | rm_key              | Key        | INT           | Primary Key, FK to dim_rm | The RM this preference belongs to.  | 50012                            |
+| dim_rm_preference | communication_style | Detail     | VARCHAR(50)   | Nullable                  | The RM's preferred tone.            | Formal and respectful            |
+| dim_rm_preference | llm_prompt_snippet  | Detail     | VARCHAR(2000) | Nullable                  | The specific prompt snippet to use. | Draft the message in a formal... |
+| dim_rm_preference | default_report_view | Detail     | VARCHAR(100)  | Nullable                  | RM's preferred dashboard.           | Monthly_Deposits                 |

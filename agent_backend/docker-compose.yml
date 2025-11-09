@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  agent_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"  # Expose port to Mac host
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=
+      - MCP_SERVER_URL=http://host.docker.internal:3000/mcp  # Access host services
+      - POSTGRES_HOST=host.docker.internal  # Access host Postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # For Docker Desktop on Mac
+
+  # mcp_server:
+  #   build:
+  #     context: ../mcp_server
+  #     dockerfile: Dockerfile
+  #   container_name: mcp_server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ../mcp_server/.env
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - backend-network
+
+  # postgres:
+  #   image: postgres:17
+  #   container_name: postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - backend-network
+
+# volumes:
+#   postgres_data:
+#     driver: local
+
