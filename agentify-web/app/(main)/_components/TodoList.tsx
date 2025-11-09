@@ -2,11 +2,11 @@
 
 import { useGetTasksQuery } from '@/lib/api';
 import { TaskType } from '@/types/task.type';
-import { Button, Card, Dropdown, Space, Typography } from 'antd';
 import type { MenuProps } from 'antd';
+import { Button, Card, Dropdown, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { FC, useEffect, useState } from 'react';
-import { LuChevronsDown, LuChevronsUp, LuChevronDown } from 'react-icons/lu';
+import { LuChevronDown, LuChevronsDown, LuChevronsUp } from 'react-icons/lu';
 import TodoCard from './TodoCard';
 
 const TodoList: FC = () => {
@@ -24,12 +24,23 @@ const TodoList: FC = () => {
   }, [selectedTaskType]);
 
   const sortedTasks = tasks?.length
-    ? [...tasks].sort((a, b) => {
-        if (a.status !== b.status) {
-          return a.status === 'IN_PROGRESS' ? -1 : 1;
-        }
-        return dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf();
-      })
+    ? (() => {
+        const inProgressTasks = tasks.filter(
+          (task) => task.status === 'IN_PROGRESS',
+        );
+        const completedTasks = tasks.filter(
+          (task) => task.status === 'COMPLETED',
+        );
+
+        const sortedInProgress = inProgressTasks.sort(
+          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+        );
+        const sortedCompleted = completedTasks.sort(
+          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+        );
+
+        return [...sortedInProgress, ...sortedCompleted];
+      })()
     : [];
 
   const taskTypeFilteredTasks =
