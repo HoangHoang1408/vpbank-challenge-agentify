@@ -14,7 +14,7 @@ const WELCOME_MESSAGE: IChatMessage = {
 • Ưu tiên chiến lược - Tìm kiếm cơ hội khách hàng hàng đầu
 • Hành động tiếp theo tốt nhất - Nhận đề xuất cá nhân hóa
 • Báo cáo hiệu suất - Kiểm tra chỉ số của bạn ngay lập tức
-• Nhập dữ liệu CRM - Ghi chép cuộc họp một cách tự nhiên
+• Nhập dữ liệu Task CRM - Ghi chép, cập nhật công việc
 
 Tôi có thể hỗ trợ gì cho bạn hôm nay?`,
   timestamp: new Date(),

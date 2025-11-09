@@ -1,8 +1,0 @@
-| Table Name   | Column Name         | Core Feature   |  Use case (if have)   | Category    | Data Type    | Key/Constraint   | Constant   | Description                         | Example                         |
-|:-------------|:--------------------|:---------------|:----------------------|:------------|:-------------|:-----------------|:-----------|:------------------------------------|:--------------------------------|
-| dim_product  | product_key         |                |                       | Key         | INT          | Primary Key      | False      | Surrogate key for the product.      | 201                             |
-| dim_product  | product_id          |                |                       | Business ID | VARCHAR(30)  | Unique, Not Null | False      | Operational system product code.    | PROD-CD-12M                     |
-| dim_product  | product_name        |                |                       | Detail      | VARCHAR(255) | Not Null         | False      | The commercial name of the product. | 12-Month Certificate of Deposit |
-| dim_product  | product_category    |                |                       | Detail      | VARCHAR(50)  | Not Null         | False      | High-level grouping.                | Deposits                        |
-| dim_product  | product_subcategory |                |                       | Detail      | VARCHAR(50)  | Not Null         | False      | Specific grouping.                  | Certificate of Deposit          |
-| dim_product  | is_active           |                |                       | Status      | BOOLEAN      | Not Null         | False      | Is this product currently offered?  | True                            |

@@ -1,0 +1,145 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database for MCP Server
+  postgres:
+    image: postgres:17
+    container_name: vpbank-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vpbank-network
+
+  # MCP Server (NestJS - Tools & Data Layer)
+  mcp_server:
+    build:
+      context: ./mcp_server
+      dockerfile: Dockerfile
+    container_name: vpbank-mcp-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-postgres}
+      # Application Configuration
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      # OpenAI Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    env_file:
+      - ./mcp_server/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vpbank-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Agentify Backend (FastAPI - AI Agent)
+  agentify_backend:
+    build:
+      context: ./agentify_backend
+      dockerfile: Dockerfile
+    container_name: vpbank-agentify-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # MCP Server URL
+      MCP_SERVER_URL: http://mcp_server:3000
+      # OpenAI Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Application Configuration
+      PYTHONUNBUFFERED: 1
+    env_file:
+      - ./agentify_backend/.env
+    depends_on:
+      mcp_server:
+        condition: service_healthy
+    networks:
+      - vpbank-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Agentify Web (Next.js - Frontend)
+  agentify_web:
+    build:
+      context: ./agentify-web
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+        PORT: 3000
+        NEXT_TELEMETRY_DISABLED: 1
+    container_name: vpbank-agentify-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_EXPOSE_PORT:-3001}:3000"
+    environment:
+      # Backend API URLs
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_MCP_SERVER_URL: ${NEXT_PUBLIC_MCP_SERVER_URL:-http://localhost:3000}
+      # Application Configuration
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_TELEMETRY_DISABLED: 1
+    env_file:
+      - ./agentify-web/.env
+    depends_on:
+      - agentify_backend
+      - mcp_server
+    networks:
+      - vpbank-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+    name: vpbank-postgres-data
+
+networks:
+  vpbank-network:
+    driver: bridge
+    name: vpbank-network
