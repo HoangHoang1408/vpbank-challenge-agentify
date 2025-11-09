@@ -28,7 +28,7 @@ const AgentChat: FC = () => {
                 level={3}
                 className="font-semibold text-base! mb-0!"
               >
-                AI Chief of Staff
+                AI RM Co-pilot
               </Typography.Title>
               <Typography.Paragraph
                 type="secondary"
