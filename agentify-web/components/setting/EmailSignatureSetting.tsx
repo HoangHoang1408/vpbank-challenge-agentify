@@ -1,8 +1,11 @@
 'use client';
 
-import { useSettingStore } from '@/stores';
-import { Input, Modal, Typography } from 'antd';
-import { FC, useEffect, useState } from 'react';
+import {
+  useGetRMEmailSignatureQuery,
+  useUpdateRMEmailSignatureMutation,
+} from '@/lib/api';
+import { App, Input, Modal, Typography } from 'antd';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { LuSignature } from 'react-icons/lu';
 
 interface Props {
@@ -11,23 +14,46 @@ interface Props {
 }
 
 const EmailSignatureSetting: FC<Props> = ({ open, onClose }) => {
-  const { emailSignature, setEmailSignature } = useSettingStore();
+  const { message } = App.useApp();
 
-  const [signatureValue, setSignatureValue] = useState(emailSignature);
+  const { data: emailSignatureData, refetch: refetchEmailSignature } =
+    useGetRMEmailSignatureQuery(1);
+  const {
+    mutate: updateRMEmailSignature,
+    isPending: isUpdatingEmailSignature,
+  } = useUpdateRMEmailSignatureMutation();
+
+  const emailSignature = useMemo(
+    () => emailSignatureData?.data?.emailSignature || '',
+    [emailSignatureData],
+  );
+
+  const [signatureValue, setSignatureValue] = useState(emailSignature || '');
 
   useEffect(() => {
     if (emailSignature && emailSignature !== signatureValue) {
-      setSignatureValue(emailSignature);
+      setSignatureValue(emailSignature || '');
     }
   }, [emailSignature]);
 
   const handleSaveChange = () => {
-    setEmailSignature(signatureValue);
-    onClose();
+    updateRMEmailSignature(
+      { id: 1, emailSignature: signatureValue },
+      {
+        onSuccess: () => {
+          message.success('Email signature updated successfully');
+          refetchEmailSignature();
+          onClose();
+        },
+        onError: () => {
+          message.error('Failed to update email signature');
+        },
+      },
+    );
   };
 
   const handleCancel = () => {
-    setSignatureValue(emailSignature);
+    setSignatureValue(emailSignature || '');
     onClose();
   };
 
@@ -39,6 +65,7 @@ const EmailSignatureSetting: FC<Props> = ({ open, onClose }) => {
       okText="Save Change"
       okButtonProps={{
         disabled: signatureValue === emailSignature,
+        loading: isUpdatingEmailSignature,
       }}
       title={
         <div className="flex items-center gap-2">

@@ -16,3 +16,15 @@ export interface IRM {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface IRMEmailSignature {
+  id: number;
+  name: string;
+  title: string;
+  emailSignature: string | null;
+}
+
+export interface IUpdateRMEmailSignatureParams {
+  id: number;
+  emailSignature: string;
+}
