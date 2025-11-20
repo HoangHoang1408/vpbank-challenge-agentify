@@ -93,7 +93,7 @@ const TodoList: FC = () => {
               Todo List
             </Typography.Title>
             <Typography.Text type="secondary">
-              Talk to the AI Chief of Staff to add tasks to your list
+              Talk to the AI RM Co-pilot to add tasks to your list
             </Typography.Text>
           </div>
           <div>
