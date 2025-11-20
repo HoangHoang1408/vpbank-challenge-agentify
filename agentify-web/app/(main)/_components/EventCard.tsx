@@ -4,7 +4,6 @@ import { SEGMENT_COLORS } from '@/constants';
 import { IGenEmail } from '@/types';
 import { Avatar, Button, Card, Tag, Typography } from 'antd';
 import { FC } from 'react';
-import { LuCalendar, LuDot } from 'react-icons/lu';
 
 interface Props {
   event: IGenEmail;
@@ -18,8 +17,8 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
       onClick={() => onOpenDraftMessage(event)}
     >
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Avatar size={48} className="bg-[#193876]! font-medium">
+        <div className="flex items-center gap-1">
+          <Avatar size={40} className="bg-[#193876]! font-medium text-sm!">
             {event.customer.name
               .split(' ')
               .map((name) => name[0])
@@ -27,8 +26,8 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
               .join('')}
           </Avatar>
           <div>
-            <div className="flex items-center gap-2">
-              <Typography.Title level={5} className="mb-0!">
+            <div className="flex items-center gap-1 flex-wrap">
+              <Typography.Title level={5} className="mb-0! text-base!">
                 {event.customer.name}
               </Typography.Title>
               <Tag
@@ -38,28 +37,10 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
                 {event.customer.segment}
               </Tag>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="flex items-center gap-2">
-                <LuCalendar className="text-text-tertiary" />
-                <Typography.Text
-                  type="secondary"
-                  className="text-sm! capitalize"
-                >
-                  {event.emailType.split('_').join(' ').toLowerCase()}
-                </Typography.Text>
-              </div>
-              <LuDot className="text-text-tertiary mt-1.5" />
-              <div>
-                <Typography.Text type="secondary" className="text-sm!">
-                  Last Contact:
-                </Typography.Text>
-              </div>
-            </div>
           </div>
         </div>
         <Button
           type="primary"
-          size="large"
           onClick={(e) => {
             e.stopPropagation();
             onOpenDraftMessage(event);

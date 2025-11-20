@@ -33,7 +33,7 @@ export class GenEmailController {
         name: 'status',
         required: false,
         enum: EmailStatus,
-        description: 'Filter by email status (DRAFT, SENT, or DELETED)',
+        description: 'Filter by email status (DRAFT, SENT_EMAIL, SENT_MESSAGE, or DELETED)',
         example: EmailStatus.DRAFT,
     })
     @ApiQuery({
@@ -261,7 +261,7 @@ export class GenEmailController {
         name: 'status',
         required: false,
         enum: EmailStatus,
-        description: 'Filter by email status (DRAFT, SENT, or DELETED). If not provided, all emails will be regenerated.',
+        description: 'Filter by email status (DRAFT, SENT_EMAIL, SENT_MESSAGE, or DELETED). If not provided, all emails will be regenerated.',
         example: EmailStatus.DRAFT,
     })
     @ApiQuery({
@@ -347,12 +347,12 @@ export class GenEmailController {
 
     /**
      * PATCH /gen-email/:id/status
-     * Update email status (mark as SENT/DELETED)
+     * Update email status (mark as SENT_EMAIL/SENT_MESSAGE/DELETED)
      */
     @Patch(':id/status')
     @ApiOperation({
         summary: 'Update email status',
-        description: 'Update the status of a generated email. Use this endpoint to mark an email as SENT after sending it to the customer, or DELETED to remove it from active drafts.',
+        description: 'Update the status of a generated email. Use this endpoint to mark an email as SENT_EMAIL after sending it via email, SENT_MESSAGE after sending it via direct message, or DELETED to remove it from active drafts.',
     })
     @ApiParam({
         name: 'id',
@@ -371,12 +371,12 @@ export class GenEmailController {
             type: 'object',
             properties: {
                 success: { type: 'boolean', example: true },
-                message: { type: 'string', example: 'Email status updated to SENT' },
+                message: { type: 'string', example: 'Email status updated to SENT_EMAIL' },
                 data: {
                     type: 'object',
                     properties: {
                         id: { type: 'number', example: 1 },
-                        status: { type: 'string', example: 'SENT' },
+                        status: { type: 'string', example: 'SENT_EMAIL' },
                         subject: { type: 'string' },
                         body: { type: 'string' },
                         message: { type: 'string' },

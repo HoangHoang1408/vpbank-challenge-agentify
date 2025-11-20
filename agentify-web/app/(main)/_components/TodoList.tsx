@@ -25,22 +25,22 @@ const TodoList: FC = () => {
 
   const sortedTasks = tasks?.length
     ? (() => {
-        const inProgressTasks = tasks.filter(
-          (task) => task.status === 'IN_PROGRESS',
-        );
-        const completedTasks = tasks.filter(
-          (task) => task.status === 'COMPLETED',
-        );
+      const inProgressTasks = tasks.filter(
+        (task) => task.status === 'IN_PROGRESS',
+      );
+      const completedTasks = tasks.filter(
+        (task) => task.status === 'COMPLETED',
+      );
 
-        const sortedInProgress = inProgressTasks.sort(
-          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
-        );
-        const sortedCompleted = completedTasks.sort(
-          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
-        );
+      const sortedInProgress = inProgressTasks.sort(
+        (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+      );
+      const sortedCompleted = completedTasks.sort(
+        (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+      );
 
-        return [...sortedInProgress, ...sortedCompleted];
-      })()
+      return [...sortedInProgress, ...sortedCompleted];
+    })()
     : [];
 
   const taskTypeFilteredTasks =
@@ -93,7 +93,7 @@ const TodoList: FC = () => {
               Todo List
             </Typography.Title>
             <Typography.Text type="secondary">
-              Talk to the AI RM Co-pilot to add tasks to your list
+              Talk to the AI Chief of Staff to add tasks to your list
             </Typography.Text>
           </div>
           <div>
@@ -115,56 +115,58 @@ const TodoList: FC = () => {
           </div>
         </div>
 
-        {tasks?.length && tasks.length > 0 ? (
-          taskTypeFilteredTasks?.length && taskTypeFilteredTasks.length > 0 ? (
-            <div>
-              <Space direction="vertical" size={12} className="w-full">
-                {filteredData.map((task) => (
-                  <TodoCard
-                    key={task.id}
-                    task={task}
-                    refetchTasks={refetchTasks}
-                  />
-                ))}
-              </Space>
+        <Card className="rounded-xl!" variant="borderless">
+          {tasks?.length && tasks.length > 0 ? (
+            taskTypeFilteredTasks?.length && taskTypeFilteredTasks.length > 0 ? (
+              <div>
+                <Space direction="vertical" size={12} className="w-full">
+                  {filteredData.map((task) => (
+                    <TodoCard
+                      key={task.id}
+                      task={task}
+                      refetchTasks={refetchTasks}
+                    />
+                  ))}
+                </Space>
 
-              {taskTypeFilteredTasks?.length &&
-                taskTypeFilteredTasks.length > 3 && (
-                  <div className="mt-4 text-center">
-                    <Button
-                      type="link"
-                      icon={showAll ? <LuChevronsUp /> : <LuChevronsDown />}
-                      iconPosition="end"
-                      onClick={() => setShowAll(!showAll)}
-                    >
-                      {showAll
-                        ? 'See Less'
-                        : `See More (${taskTypeFilteredTasks.length - 3} more)`}
-                    </Button>
-                  </div>
-                )}
-            </div>
+                {taskTypeFilteredTasks?.length &&
+                  taskTypeFilteredTasks.length > 3 && (
+                    <div className="mt-4 text-center">
+                      <Button
+                        type="link"
+                        icon={showAll ? <LuChevronsUp /> : <LuChevronsDown />}
+                        iconPosition="end"
+                        onClick={() => setShowAll(!showAll)}
+                      >
+                        {showAll
+                          ? 'See Less'
+                          : `See More (${taskTypeFilteredTasks.length - 3} more)`}
+                      </Button>
+                    </div>
+                  )}
+              </div>
+            ) : (
+              <div className="mt-12 mb-8">
+                <Typography.Paragraph
+                  type="secondary"
+                  className="text-sm! text-center"
+                >
+                  No tasks found for this filter. Try selecting a different task
+                  type.
+                </Typography.Paragraph>
+              </div>
+            )
           ) : (
             <div className="mt-12 mb-8">
               <Typography.Paragraph
                 type="secondary"
                 className="text-sm! text-center"
               >
-                No tasks found for this filter. Try selecting a different task
-                type.
+                No tasks yet. Chat with the AI to create your first task!
               </Typography.Paragraph>
             </div>
-          )
-        ) : (
-          <div className="mt-12 mb-8">
-            <Typography.Paragraph
-              type="secondary"
-              className="text-sm! text-center"
-            >
-              No tasks yet. Chat with the AI to create your first task!
-            </Typography.Paragraph>
-          </div>
-        )}
+          )}
+        </Card>
       </Card>
     </div>
   );

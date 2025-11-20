@@ -18,12 +18,14 @@ export enum EmailType {
 /**
  * Email status lifecycle
  * - DRAFT: Email generated but not yet sent (expires after 7 days)
- * - SENT: Email has been sent to the customer
+ * - SENT_EMAIL: Email has been sent to the customer via email
+ * - SENT_MESSAGE: Message has been sent to the customer via direct message/chat
  * - DELETED: Email marked as deleted (soft delete)
  */
 export enum EmailStatus {
     DRAFT = "DRAFT",
-    SENT = "SENT",
+    SENT_EMAIL = "SENT_EMAIL",
+    SENT_MESSAGE = "SENT_MESSAGE",
     DELETED = "DELETED",
 }
 
@@ -108,7 +110,7 @@ export class GeneratedEmail {
     expiresAt: Date;
 
     @ApiProperty({
-        description: 'Current status of the email (DRAFT, SENT, or DELETED)',
+        description: 'Current status of the email (DRAFT, SENT_EMAIL, SENT_MESSAGE, or DELETED)',
         enum: EmailStatus,
         example: EmailStatus.DRAFT,
         default: EmailStatus.DRAFT,

@@ -123,6 +123,7 @@ const DraftMessage: FC<Props> = ({
     updateEmailStatus(
       {
         emailId: event.id,
+        status: messageType === 'email' ? 'SENT_EMAIL' : 'SENT_MESSAGE',
       },
       {
         onSuccess: () => {

@@ -43,7 +43,7 @@ export const useUpdateEmailStatusMutation = () =>
     AxiosError<IError>,
     IUpdateEmailStatusParams
   >({
-    mutationFn: async ({ emailId, status = 'SENT' }) => {
+    mutationFn: async ({ emailId, status = 'SENT_EMAIL' }) => {
       const response = await API.patch<IResponse<IGenEmail>>(
         `gen-email/${emailId}/status`,
         {

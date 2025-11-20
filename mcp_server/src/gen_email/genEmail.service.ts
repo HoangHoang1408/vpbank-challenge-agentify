@@ -425,8 +425,10 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
 
         const updatedEmail = await this.emailRepository.save(email);
 
-        // If email status changed to SENT, create or update the corresponding task
-        if (status === EmailStatus.SENT && previousStatus !== EmailStatus.SENT) {
+        // If email status changed to SENT_EMAIL or SENT_MESSAGE, create or update the corresponding task
+        const isSentStatus = status === EmailStatus.SENT_EMAIL || status === EmailStatus.SENT_MESSAGE;
+        const wasSentStatus = previousStatus === EmailStatus.SENT_EMAIL || previousStatus === EmailStatus.SENT_MESSAGE;
+        if (isSentStatus && !wasSentStatus) {
             await this.createOrUpdateTaskForEmail(updatedEmail);
         }
 
@@ -503,8 +505,8 @@ Hãy viết email chúc mừng cột mốc quan trọng. Email cần:
     async createTaskForEmail(emailId: number): Promise<void> {
         const email = await this.getEmailById(emailId);
 
-        if (email.status !== EmailStatus.SENT) {
-            throw new BadRequestException('Can only create tasks for emails with SENT status');
+        if (email.status !== EmailStatus.SENT_EMAIL && email.status !== EmailStatus.SENT_MESSAGE) {
+            throw new BadRequestException('Can only create tasks for emails with SENT_EMAIL or SENT_MESSAGE status');
         }
 
         await this.createOrUpdateTaskForEmail(email);

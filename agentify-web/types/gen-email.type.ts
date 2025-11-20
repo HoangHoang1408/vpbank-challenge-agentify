@@ -1,7 +1,7 @@
 import { ICustomer, Segment } from './customer.type';
 
 export type EmailType = 'BIRTHDAY' | 'CARD_RENEWAL' | 'SEGMENT_MILESTONE';
-export type EmailStatus = 'DRAFT' | 'SENT' | 'DELETED';
+export type EmailStatus = 'DRAFT' | 'SENT_EMAIL' | 'SENT_MESSAGE' | 'DELETED';
 type MilestoneType = 'account_anniversary' | 'segment_achievement';
 
 export interface IGenEmailParams {

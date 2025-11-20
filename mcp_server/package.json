@@ -21,8 +21,12 @@
     "db:export": "ts-node src/data/scripts/export_to_json.ts",
     "db:seed": "ts-node src/data/scripts/create_mock_data.ts",
     "db:clear": "ts-node src/data/scripts/clear_all.ts",
+    "db:seed:eligible": "ts-node src/data/scripts/create_eligible_customers.ts",
+    "db:seed:demo": "ts-node src/data/scripts/create_demo_customers.ts",
     "db:seed:prod": "node dist/data/scripts/create_mock_data.js",
-    "db:clear:prod": "node dist/data/scripts/clear_all.js"
+    "db:clear:prod": "node dist/data/scripts/clear_all.js",
+    "db:seed:eligible:prod": "node dist/data/scripts/create_eligible_customers.js",
+    "db:seed:demo:prod": "node dist/data/scripts/create_demo_customers.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
