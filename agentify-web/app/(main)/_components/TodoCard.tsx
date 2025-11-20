@@ -114,7 +114,7 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
               className={cn(
                 'font-semibold text-sm! sm:text-base! mb-1!',
                 task.status === 'COMPLETED' &&
-                  'line-through text-text-tertiary!',
+                'line-through text-text-tertiary!',
               )}
             >
               {task.taskDetails}
@@ -146,7 +146,7 @@ const TodoCard: FC<Props> = ({ task, refetchTasks }) => {
                   className={cn(
                     'text-xs! mb-0.25!',
                     dayjs(task.dueDate).isBefore(dayjs(), 'day') &&
-                      'text-red-500!',
+                    'text-red-500!',
                   )}
                 >
                   {dayjs(task.dueDate).format('DD/MM/YYYY')}

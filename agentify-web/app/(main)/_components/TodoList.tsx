@@ -3,7 +3,7 @@
 import { useGetTasksQuery } from '@/lib/api';
 import { TaskType } from '@/types/task.type';
 import type { MenuProps } from 'antd';
-import { Button, Card, Dropdown, Space, Typography } from 'antd';
+import { Button, Dropdown, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { FC, useEffect, useState } from 'react';
 import { LuChevronDown, LuChevronsDown, LuChevronsUp } from 'react-icons/lu';
@@ -82,92 +82,92 @@ const TodoList: FC = () => {
   };
 
   return (
-    <div className="mb-10">
-      <Card
-        className="rounded-xl! w-full max-w-5xl mx-auto!"
-        variant="borderless"
-      >
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <Typography.Title level={2} className="text-3xl! mb-1!">
-              Todo List
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              Talk to the AI Chief of Staff to add tasks to your list
-            </Typography.Text>
-          </div>
-          <div>
-            <Dropdown
-              menu={{
-                items: menuItems,
-                onClick: handleMenuClick,
-                selectable: true,
-                selectedKeys: [selectedTaskType],
-              }}
-              trigger={['click']}
-            >
-              <Button icon={<LuChevronDown />} iconPosition="end">
-                <span className="capitalize">
-                  {getTaskTypeLabel(selectedTaskType).toLowerCase()}
-                </span>
-              </Button>
-            </Dropdown>
-          </div>
+    <div className="w-full max-w-5xl mx-auto">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <Typography.Title
+            level={2}
+            className="text-xl! sm:text-2xl! md:text-3xl! mb-1!"
+          >
+            Todo List
+          </Typography.Title>
+          <Typography.Text type="secondary" className="text-sm! sm:text-base!">
+            Talk to the AI RM Co-pilot to add tasks to your list
+          </Typography.Text>
         </div>
+        <div>
+          <Dropdown
+            menu={{
+              items: menuItems,
+              onClick: handleMenuClick,
+              selectable: true,
+              selectedKeys: [selectedTaskType],
+            }}
+            trigger={['click']}
+          >
+            <Button icon={<LuChevronDown />} iconPosition="end">
+              <span className="capitalize">
+                {getTaskTypeLabel(selectedTaskType).toLowerCase()}
+              </span>
+            </Button>
+          </Dropdown>
+        </div>
+      </div>
 
-        <Card className="rounded-xl!" variant="borderless">
-          {tasks?.length && tasks.length > 0 ? (
-            taskTypeFilteredTasks?.length && taskTypeFilteredTasks.length > 0 ? (
-              <div>
-                <Space direction="vertical" size={12} className="w-full">
-                  {filteredData.map((task) => (
-                    <TodoCard
-                      key={task.id}
-                      task={task}
-                      refetchTasks={refetchTasks}
-                    />
-                  ))}
-                </Space>
+      <div className="border border-border rounded-2xl p-5 sm:p-7 bg-white shadow-sm">
+        {tasks?.length && tasks.length > 0 ? (
+          taskTypeFilteredTasks?.length && taskTypeFilteredTasks.length > 0 ? (
+            <>
+              <Space direction="vertical" size={12} className="w-full">
+                {filteredData.map((task) => (
+                  <TodoCard
+                    key={task.id}
+                    task={task}
+                    refetchTasks={refetchTasks}
+                  />
+                ))}
+              </Space>
 
-                {taskTypeFilteredTasks?.length &&
-                  taskTypeFilteredTasks.length > 3 && (
-                    <div className="mt-4 text-center">
-                      <Button
-                        type="link"
-                        icon={showAll ? <LuChevronsUp /> : <LuChevronsDown />}
-                        iconPosition="end"
-                        onClick={() => setShowAll(!showAll)}
-                      >
-                        {showAll
-                          ? 'See Less'
-                          : `See More (${taskTypeFilteredTasks.length - 3} more)`}
-                      </Button>
-                    </div>
-                  )}
-              </div>
-            ) : (
-              <div className="mt-12 mb-8">
-                <Typography.Paragraph
-                  type="secondary"
-                  className="text-sm! text-center"
-                >
-                  No tasks found for this filter. Try selecting a different task
-                  type.
-                </Typography.Paragraph>
-              </div>
-            )
+              {taskTypeFilteredTasks?.length &&
+                taskTypeFilteredTasks.length > 3 && (
+                  <div className="flex justify-center mt-5">
+                    <Button
+                      type="text"
+                      size="middle"
+                      icon={showAll ? <LuChevronsUp /> : <LuChevronsDown />}
+                      iconPosition="end"
+                      onClick={() => setShowAll(!showAll)}
+                      className="font-semibold"
+                    >
+                      {showAll
+                        ? 'Show less'
+                        : `Show all (${taskTypeFilteredTasks.length - 3} more)`}
+                    </Button>
+                  </div>
+                )}
+            </>
           ) : (
-            <div className="mt-12 mb-8">
+            <div className="py-12">
               <Typography.Paragraph
                 type="secondary"
                 className="text-sm! text-center"
               >
-                No tasks yet. Chat with the AI to create your first task!
+                No tasks found for this filter. Try selecting a different task
+                type.
               </Typography.Paragraph>
             </div>
-          )}
-        </Card>
-      </Card>
+          )
+        ) : (
+          <div className="py-12">
+            <Typography.Paragraph
+              type="secondary"
+              className="text-sm! text-center"
+            >
+              No tasks yet. Chat with the AI to create your first task!
+            </Typography.Paragraph>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -83,7 +83,7 @@ const EventList: FC = () => {
   }, [historyList, showAllHistory]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto mt-8">
       <div>
         <Typography.Title
           level={2}
