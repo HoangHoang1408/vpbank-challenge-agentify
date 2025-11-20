@@ -20,7 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:export": "ts-node src/data/scripts/export_to_json.ts",
     "db:seed": "ts-node src/data/scripts/create_mock_data.ts",
-    "db:clear": "ts-node src/data/scripts/clear_all.ts"
+    "db:clear": "ts-node src/data/scripts/clear_all.ts",
+    "db:seed:prod": "node dist/data/scripts/create_mock_data.js",
+    "db:clear:prod": "node dist/data/scripts/clear_all.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
