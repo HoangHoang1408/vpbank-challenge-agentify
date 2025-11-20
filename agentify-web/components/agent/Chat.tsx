@@ -9,13 +9,11 @@ import { useClearChatHistoryMutation, useSendChatMessageMutation } from '@/lib/a
 const WELCOME_MESSAGE: IChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: `Xin chào! Tôi là trợ lý AI của bạn. Tôi có thể giúp bạn với:
-
-• Ưu tiên chiến lược - Tìm kiếm cơ hội khách hàng hàng đầu
-• Hành động tiếp theo tốt nhất - Nhận đề xuất cá nhân hóa
-• Báo cáo hiệu suất - Kiểm tra chỉ số của bạn ngay lập tức
-• Nhập dữ liệu Task CRM - Ghi chép, cập nhật công việc
-
+  content: `Xin chào! Tôi là trợ lý AI của bạn. Tôi có thể giúp bạn với\n
+1 Ưu tiên chiến lược - Tìm kiếm cơ hội khách hàng hàng đầu\n
+2 Hành động tiếp theo tốt nhất - Nhận đề xuất cá nhân hóa\n
+3 Báo cáo hiệu suất - Kiểm tra chỉ số của bạn ngay lập tức\n
+4 Nhập dữ liệu Task CRM - Ghi chép, cập nhật công việc\n\n
 Tôi có thể hỗ trợ gì cho bạn hôm nay?`,
   timestamp: new Date(),
 };

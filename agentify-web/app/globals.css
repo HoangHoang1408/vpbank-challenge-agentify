@@ -13,29 +13,31 @@
 
 .markdown-content {
   font-size: 0.95rem;
-  line-height: 1.3;
+  line-height: 1.45;
+  /* Override bubble's whitespace-pre-wrap so markdown doesn't look overly spaced */
+  white-space: normal;
 }
 
 /* Headings */
 .markdown-content h1 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin: 0.15rem 0 0.08rem 0;
-  line-height: 1.2;
+  margin: 0.4rem 0 0.2rem 0;
+  line-height: 1.35;
 }
 
 .markdown-content h2 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  margin: 0.12rem 0 0.06rem 0;
-  line-height: 1.2;
+  margin: 0.35rem 0 0.2rem 0;
+  line-height: 1.35;
 }
 
 .markdown-content h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  margin: 0.1rem 0 0.05rem 0;
-  line-height: 1.2;
+  margin: 0.3rem 0 0.15rem 0;
+  line-height: 1.35;
 }
 
 .markdown-content h4,
@@ -43,13 +45,13 @@
 .markdown-content h6 {
   font-size: 1rem;
   font-weight: 600;
-  margin: 0.08rem 0 0.04rem 0;
-  line-height: 1.2;
+  margin: 0.25rem 0 0.1rem 0;
+  line-height: 1.35;
 }
 
 /* Paragraphs */
 .markdown-content p {
-  margin: 0.1rem 0;
+  margin: 0.15rem 0;
 }
 
 .markdown-content p:first-child {
@@ -63,23 +65,24 @@
 /* Lists */
 .markdown-content ul,
 .markdown-content ol {
-  margin: 0.1rem 0;
+  margin: 0.25rem 0;
   padding-left: 1.5rem;
 }
 
 .markdown-content li {
-  margin: 0.04rem 0;
+  margin: 0.1rem 0;
+  line-height: 1.5;
 }
 
 .markdown-content li>p {
-  margin: 0.04rem 0;
+  margin: 0.05rem 0;
 }
 
 .markdown-content ul ul,
 .markdown-content ol ul,
 .markdown-content ul ol,
 .markdown-content ol ol {
-  margin: 0.04rem 0;
+  margin: 0.1rem 0;
 }
 
 /* Bold and Italic */
@@ -93,9 +96,9 @@
 
 /* Blockquotes */
 .markdown-content blockquote {
-  margin: 0.1rem 0;
-  padding: 0.3rem 0.6rem;
-  border-left: 2.5px solid rgba(17, 103, 255, 0.3);
+  margin: 0.4rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid rgba(17, 103, 255, 0.3);
   background-color: rgba(17, 103, 255, 0.05);
   border-radius: 0.25rem;
 }
@@ -108,17 +111,17 @@
 .markdown-content code {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   background-color: rgba(9, 23, 52, 0.08);
-  padding: 0.08rem 0.3rem;
-  border-radius: 0.2rem;
-  font-size: 0.875em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
 }
 
 /* Code blocks */
 .markdown-content pre {
-  margin: 0.15rem 0;
-  padding: 0.4rem 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.75rem;
   background-color: rgba(9, 23, 52, 0.08);
-  border-radius: 0.4rem;
+  border-radius: 0.3rem;
   overflow-x: auto;
 }
 
@@ -126,8 +129,8 @@
   background-color: transparent;
   padding: 0;
   border-radius: 0;
-  font-size: 0.875rem;
-  line-height: 1.3;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 /* Links */
@@ -145,13 +148,13 @@
 .markdown-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 0.4rem;
-  margin: 0.1rem 0;
+  border-radius: 0.3rem;
+  margin: 0.5rem 0;
 }
 
 /* Horizontal rules */
 .markdown-content hr {
-  margin: 0.3rem 0;
+  margin: 0.6rem 0;
   border: none;
   border-top: 1px solid rgba(220, 223, 229, 0.5);
 }
@@ -160,15 +163,16 @@
 .markdown-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0.15rem 0;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
 }
 
 .markdown-content th,
 .markdown-content td {
-  padding: 0.25rem 0.4rem;
+  padding: 0.35rem 0.6rem;
   border: 1px solid rgba(220, 223, 229, 0.5);
   text-align: left;
-  line-height: 1.3;
+  line-height: 1.5;
 }
 
 .markdown-content th {

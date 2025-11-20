@@ -22,10 +22,14 @@ export class RecommendationTool {
     ) {
         // Initialize OpenAI client with API key from ConfigService
         const apiKey = this.configService.get<string>('openai.apiKey');
+        const baseURL = this.configService.get<string>('openai.baseUrl');
         if (!apiKey) {
             throw new Error("OPENAI_API_KEY environment variable is not set in .env file.");
         }
-        this.openai = new OpenAI({ apiKey });
+        this.openai = new OpenAI({
+            apiKey: apiKey,
+            baseURL: baseURL,
+        });
     }
 
     @Tool({
