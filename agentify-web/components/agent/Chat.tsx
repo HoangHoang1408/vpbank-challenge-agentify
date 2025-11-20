@@ -105,7 +105,7 @@ const AgentChat: FC = () => {
   return (
     <Layout.Sider
       collapsed={collapsed}
-      width={400}
+      width={600}
       collapsedWidth={0}
       collapsible
       theme="light"
