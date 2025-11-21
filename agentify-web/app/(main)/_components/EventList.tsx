@@ -117,7 +117,7 @@ const EventList: FC = () => {
           return (
             <div
               key={type}
-              className="border border-border rounded-2xl p-3 sm:p-5 bg-white shadow-sm"
+              className="border border-border rounded-2xl p-2 lg:p-5 bg-white shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3 mb-3 sm:mb-5">
                 <div className="flex items-center gap-3">

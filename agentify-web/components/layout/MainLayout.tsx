@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Layout, Splitter } from 'antd';
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { LuSparkles } from 'react-icons/lu';
 import { AgentChat } from '../agent';
 import Header from './Header';
@@ -16,9 +16,12 @@ const MainLayout: FC<Props> = ({ children }) => {
     Array<string | number>
   >(['100%', '0%']);
   const [windowWidth, setWindowWidth] = useState<number>(0);
+  const panelSizeRef = useRef(currentPanelSize);
+
+  console.log(windowWidth);
 
   const handleOpenAiPanel = () => {
-    if (windowWidth < 400) {
+    if (windowWidth < 800) {
       setcurrentPanelSize([0, windowWidth]);
     } else {
       setcurrentPanelSize([windowWidth - 400, 400]);
@@ -26,10 +29,21 @@ const MainLayout: FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (windowWidth < 400) {
-      setcurrentPanelSize([0, windowWidth]);
+    panelSizeRef.current = currentPanelSize;
+  }, [currentPanelSize]);
+
+  useEffect(() => {
+    const isPanelOpen =
+      panelSizeRef.current[1] !== 0 && panelSizeRef.current[1] !== '0%';
+
+    if (isPanelOpen) {
+      if (windowWidth < 800) {
+        setcurrentPanelSize([0, windowWidth]);
+      } else {
+        setcurrentPanelSize([windowWidth - 400, 400]);
+      }
     } else {
-      setcurrentPanelSize([windowWidth - 400, 400]);
+      setcurrentPanelSize([windowWidth, 0]);
     }
   }, [windowWidth]);
 
@@ -55,7 +69,11 @@ const MainLayout: FC<Props> = ({ children }) => {
   return (
     <>
       <Splitter className="h-dvh! overflow-hidden" onResize={handleResize}>
-        <Splitter.Panel size={currentPanelSize[0]} min={400}>
+        <Splitter.Panel
+          size={currentPanelSize[0]}
+          min={400}
+          className="transition-all duration-150"
+        >
           <Layout>
             <Header />
             <Layout.Content className="bg-linear-to-br from-background via-background to-primary/5 flex-1! overflow-y-auto">
@@ -68,6 +86,7 @@ const MainLayout: FC<Props> = ({ children }) => {
           size={currentPanelSize[1]}
           min={300}
           resizable={windowWidth > 400}
+          className="transition-all duration-150"
         >
           <AgentChat onClose={handleCloseAiPanel} />
         </Splitter.Panel>

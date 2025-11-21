@@ -19,7 +19,7 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1">
-          <Avatar size={40} className="bg-[#193876]! font-medium text-sm!">
+          <Avatar className="bg-[#193876]! font-medium text-sm! size-8! sm:size-10!">
             {event.customer.name
               .split(' ')
               .map((name) => name[0])

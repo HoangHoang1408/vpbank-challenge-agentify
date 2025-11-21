@@ -24,7 +24,7 @@ const Header: FC = () => {
     useState(false);
 
   return (
-    <Layout.Header className="bg-white! border-b border-border container px-0!">
+    <Layout.Header className="bg-white! border-b border-border px-0!">
       <div className="container mx-auto h-full flex justify-between items-center px-2 sm:px-4 py-3 sm:py-4">
         <Typography.Title
           level={1}
