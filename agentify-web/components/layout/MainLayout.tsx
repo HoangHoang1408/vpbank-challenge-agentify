@@ -18,8 +18,6 @@ const MainLayout: FC<Props> = ({ children }) => {
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const panelSizeRef = useRef(currentPanelSize);
 
-  console.log(windowWidth);
-
   const handleOpenAiPanel = () => {
     if (windowWidth < 800) {
       setcurrentPanelSize([0, windowWidth]);
