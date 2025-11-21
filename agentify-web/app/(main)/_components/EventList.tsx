@@ -14,14 +14,16 @@ const EventList: FC = () => {
     rmId: 1,
     status: 'DRAFT',
   });
-  const { data: historyEmailEvents, refetch: refetchHistoryEmails } = useGetListEmail({
-    rmId: 1,
-    status: 'SENT_EMAIL',
-  });
-  const { data: historyMessageEvents, refetch: refetchHistoryMessages } = useGetListEmail({
-    rmId: 1,
-    status: 'SENT_MESSAGE',
-  });
+  const { data: historyEmailEvents, refetch: refetchHistoryEmails } =
+    useGetListEmail({
+      rmId: 1,
+      status: 'SENT_EMAIL',
+    });
+  const { data: historyMessageEvents, refetch: refetchHistoryMessages } =
+    useGetListEmail({
+      rmId: 1,
+      status: 'SENT_MESSAGE',
+    });
 
   // Merge both SENT_EMAIL and SENT_MESSAGE events
   const historyEvents = useMemo(() => {
@@ -30,8 +32,9 @@ const EventList: FC = () => {
     const combined = [...emailEvents, ...messageEvents];
     // Sort by updatedAt in descending order (most recent first)
     return {
-      data: combined.sort((a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      data: combined.sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
       ),
     };
   }, [historyEmailEvents, historyMessageEvents]);
@@ -55,13 +58,16 @@ const EventList: FC = () => {
 
   const groupedDraftsByType = useMemo(() => {
     const drafts = emailsDraft?.data ?? [];
-    return drafts.reduce<Record<EmailType, IGenEmail[]>>((acc, event) => {
-      if (!acc[event.emailType]) {
-        acc[event.emailType] = [];
-      }
-      acc[event.emailType].push(event);
-      return acc;
-    }, {} as Record<EmailType, IGenEmail[]>);
+    return drafts.reduce<Record<EmailType, IGenEmail[]>>(
+      (acc, event) => {
+        if (!acc[event.emailType]) {
+          acc[event.emailType] = [];
+        }
+        acc[event.emailType].push(event);
+        return acc;
+      },
+      {} as Record<EmailType, IGenEmail[]>,
+    );
   }, [emailsDraft?.data]);
 
   const [expandedTypes, setExpandedTypes] = useState<
@@ -111,9 +117,9 @@ const EventList: FC = () => {
           return (
             <div
               key={type}
-              className="border border-border rounded-2xl p-5 sm:p-7 bg-white shadow-sm"
+              className="border border-border rounded-2xl p-3 sm:p-5 bg-white shadow-sm"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3 sm:mb-5">
                 <div className="flex items-center gap-3">
                   <Tag
                     color={EMAIL_TYPE_COLORS[type]}
@@ -162,7 +168,10 @@ const EventList: FC = () => {
             >
               Events Reminders History
             </Typography.Title>
-            <Typography.Text type="secondary" className="text-sm! sm:text-base!">
+            <Typography.Text
+              type="secondary"
+              className="text-sm! sm:text-base!"
+            >
               Previously contacted clients
             </Typography.Text>
           </div>

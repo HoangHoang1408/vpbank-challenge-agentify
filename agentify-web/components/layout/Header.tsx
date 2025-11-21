@@ -24,7 +24,7 @@ const Header: FC = () => {
     useState(false);
 
   return (
-    <Layout.Header className="bg-white! border-b border-border">
+    <Layout.Header className="bg-white! border-b border-border container px-0!">
       <div className="container mx-auto h-full flex justify-between items-center px-2 sm:px-4 py-3 sm:py-4">
         <Typography.Title
           level={1}
@@ -41,7 +41,7 @@ const Header: FC = () => {
               variant="outlined"
               onClick={() => setOpenEmailSignatureSetting(true)}
             >
-              Email Signature
+              <span className="hidden xl:block">Email Signature</span>
             </Button>
             <Button
               icon={<HiOutlineCog6Tooth />}
@@ -49,7 +49,7 @@ const Header: FC = () => {
               variant="outlined"
               onClick={() => setOpenToneSetting(true)}
             >
-              Tone
+              <span className="hidden xl:block">Tone</span>
             </Button>
           </div>
 

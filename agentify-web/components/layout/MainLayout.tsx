@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Layout, Splitter } from 'antd';
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { LuSparkles } from 'react-icons/lu';
 import { AgentChat } from '../agent';
 import Header from './Header';
@@ -15,6 +15,34 @@ const MainLayout: FC<Props> = ({ children }) => {
   const [currentPanelSize, setcurrentPanelSize] = useState<
     Array<string | number>
   >(['100%', '0%']);
+  const [windowWidth, setWindowWidth] = useState<number>(0);
+
+  const handleOpenAiPanel = () => {
+    if (windowWidth < 400) {
+      setcurrentPanelSize([0, windowWidth]);
+    } else {
+      setcurrentPanelSize([windowWidth - 400, 400]);
+    }
+  };
+
+  useEffect(() => {
+    if (windowWidth < 400) {
+      setcurrentPanelSize([0, windowWidth]);
+    } else {
+      setcurrentPanelSize([windowWidth - 400, 400]);
+    }
+  }, [windowWidth]);
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleResize = (size: number[]) => {
     setcurrentPanelSize(size);
@@ -27,7 +55,7 @@ const MainLayout: FC<Props> = ({ children }) => {
   return (
     <>
       <Splitter className="h-dvh! overflow-hidden" onResize={handleResize}>
-        <Splitter.Panel size={currentPanelSize[0]}>
+        <Splitter.Panel size={currentPanelSize[0]} min={400}>
           <Layout>
             <Header />
             <Layout.Content className="bg-linear-to-br from-background via-background to-primary/5 flex-1! overflow-y-auto">
@@ -36,7 +64,11 @@ const MainLayout: FC<Props> = ({ children }) => {
           </Layout>
         </Splitter.Panel>
 
-        <Splitter.Panel size={currentPanelSize[1]} min={300}>
+        <Splitter.Panel
+          size={currentPanelSize[1]}
+          min={300}
+          resizable={windowWidth > 400}
+        >
           <AgentChat onClose={handleCloseAiPanel} />
         </Splitter.Panel>
       </Splitter>
@@ -58,7 +90,7 @@ const MainLayout: FC<Props> = ({ children }) => {
             ? 'opacity-100 visible'
             : 'opacity-0 invisible',
         )}
-        onClick={() => setcurrentPanelSize(['70%', '30%'])}
+        onClick={handleOpenAiPanel}
       >
         <LuSparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
         <span className="text-xs text-white font-semibold [writing-mode:vertical-rl] rotate-180">

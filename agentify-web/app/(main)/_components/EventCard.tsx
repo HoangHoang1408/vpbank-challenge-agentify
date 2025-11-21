@@ -15,6 +15,7 @@ const EventCard: FC<Props> = ({ event, onOpenDraftMessage }) => {
     <Card
       className="rounded-xl! cursor-pointer hover:shadow-md transition-all duration-300"
       onClick={() => onOpenDraftMessage(event)}
+      size="small"
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1">
