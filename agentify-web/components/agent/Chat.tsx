@@ -1,10 +1,19 @@
-import { cn } from '@/lib/utils';
-import { Button, Input, Layout, Modal, Spin, Typography, message as antdMessage } from 'antd';
+import {
+  useClearChatHistoryMutation,
+  useSendChatMessageMutation,
+} from '@/lib/api';
+import { IChatMessage } from '@/types';
+import {
+  Button,
+  Input,
+  Modal,
+  Spin,
+  Typography,
+  message as antdMessage,
+} from 'antd';
 import { FC, useEffect, useRef, useState } from 'react';
 import { LuSend, LuSparkles, LuTrash2, LuX } from 'react-icons/lu';
 import ChatMessage from './ChatMessage';
-import { IChatMessage } from '@/types';
-import { useClearChatHistoryMutation, useSendChatMessageMutation } from '@/lib/api';
 
 const WELCOME_MESSAGE: IChatMessage = {
   id: 'welcome',
@@ -18,8 +27,11 @@ Tôi có thể hỗ trợ gì cho bạn hôm nay?`,
   timestamp: new Date(),
 };
 
-const AgentChat: FC = () => {
-  const [collapsed, setCollapsed] = useState(true);
+interface Props {
+  onClose: () => void;
+}
+
+const AgentChat: FC<Props> = ({ onClose }) => {
   const [messagesInput, setMessagesInput] = useState<string>('');
   const [messages, setMessages] = useState<IChatMessage[]>([WELCOME_MESSAGE]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -83,7 +95,8 @@ const AgentChat: FC = () => {
   const handleClearHistory = () => {
     Modal.confirm({
       title: 'Xóa lịch sử trò chuyện',
-      content: 'Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện? Hành động này không thể hoàn tác.',
+      content:
+        'Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện? Hành động này không thể hoàn tác.',
       okText: 'Xóa',
       cancelText: 'Hủy',
       okType: 'danger',
@@ -94,21 +107,16 @@ const AgentChat: FC = () => {
           antdMessage.success('Đã xóa lịch sử trò chuyện thành công');
         } catch (error) {
           console.error('Error clearing chat history:', error);
-          antdMessage.error('Không thể xóa lịch sử trò chuyện. Vui lòng thử lại.');
+          antdMessage.error(
+            'Không thể xóa lịch sử trò chuyện. Vui lòng thử lại.',
+          );
         }
       },
     });
   };
 
   return (
-    <Layout.Sider
-      collapsed={collapsed}
-      width={600}
-      collapsedWidth={0}
-      collapsible
-      theme="light"
-      className="border-l border-border"
-    >
+    <div className="border-l border-border h-dvh">
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-center bg-primary/5 border-b border-border p-4 h-16">
           <div className="flex items-center gap-1.5">
@@ -144,7 +152,7 @@ const AgentChat: FC = () => {
               shape="circle"
               icon={<LuX />}
               type="text"
-              onClick={() => setCollapsed(true)}
+              onClick={onClose}
             />
           </div>
         </div>
@@ -184,30 +192,7 @@ const AgentChat: FC = () => {
           </div>
         </div>
       </div>
-
-      <button
-        className={cn(
-          'fixed top-1/2 right-4 -translate-y-1/2',
-          'h-24 sm:h-32 w-10 sm:w-12 hover:w-12 sm:hover:w-14 px-4 py-2',
-          '[&_svg]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-          'flex flex-col items-center justify-center gap-2',
-          'bg-primary bg-linear-to-b from-primary to-accent hover:bg-primary/90',
-          'rounded-md rounded-l-2xl shadow-lg ',
-          'text-sm font-medium',
-          'disabled:pointer-events-none disabled:opacity-50',
-          'ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'transition-all duration-200',
-          'whitespace-nowrap focus-visible:outline-none z-10 cursor-pointer',
-          collapsed ? 'opacity-100 visible' : 'opacity-0 invisible',
-        )}
-        onClick={() => setCollapsed(false)}
-      >
-        <LuSparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
-        <span className="text-xs text-white font-semibold [writing-mode:vertical-rl] rotate-180">
-          AI Agent
-        </span>
-      </button>
-    </Layout.Sider>
+    </div>
   );
 };
 

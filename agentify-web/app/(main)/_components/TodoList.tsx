@@ -25,22 +25,22 @@ const TodoList: FC = () => {
 
   const sortedTasks = tasks?.length
     ? (() => {
-      const inProgressTasks = tasks.filter(
-        (task) => task.status === 'IN_PROGRESS',
-      );
-      const completedTasks = tasks.filter(
-        (task) => task.status === 'COMPLETED',
-      );
+        const inProgressTasks = tasks.filter(
+          (task) => task.status === 'IN_PROGRESS',
+        );
+        const completedTasks = tasks.filter(
+          (task) => task.status === 'COMPLETED',
+        );
 
-      const sortedInProgress = inProgressTasks.sort(
-        (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
-      );
-      const sortedCompleted = completedTasks.sort(
-        (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
-      );
+        const sortedInProgress = inProgressTasks.sort(
+          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+        );
+        const sortedCompleted = completedTasks.sort(
+          (a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf(),
+        );
 
-      return [...sortedInProgress, ...sortedCompleted];
-    })()
+        return [...sortedInProgress, ...sortedCompleted];
+      })()
     : [];
 
   const taskTypeFilteredTasks =
@@ -114,7 +114,7 @@ const TodoList: FC = () => {
         </div>
       </div>
 
-      <div className="border border-border rounded-2xl p-5 sm:p-7 bg-white shadow-sm">
+      <div className="border border-border rounded-2xl p-3 sm:p-5 bg-white shadow-sm">
         {tasks?.length && tasks.length > 0 ? (
           taskTypeFilteredTasks?.length && taskTypeFilteredTasks.length > 0 ? (
             <>
